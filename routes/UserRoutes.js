@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); // Ensure this path matches your project
+const User = require('../models/User');
 
-// POST: Create a new user
+
 router.post('/users', async (req, res) => {
     try {
         const newUser = new User(req.body);
@@ -13,20 +13,19 @@ router.post('/users', async (req, res) => {
     }
 });
 
-// GET: Retrieve all users
-router.get('/users', async (req, res) => {  // Notice the '/'
+
+router.get('/users', async (req, res) => {
     try {
-        const users = await User.find();  // Correct: No extra args
+        const users = await User.find();
         res.json(users);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// GET: Retrieve user by ID
 router.get('/users/:userId', async (req, res) => {
     try {
-        const user = await User.findOne({ userId: req.params.userId }); // Correct query
+        const user = await User.findOne({ userId: req.params.userId });
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.json(user);
     } catch (err) {
@@ -34,4 +33,4 @@ router.get('/users/:userId', async (req, res) => {
     }
 });
 
-module.exports = router;  // Properly export the router
+module.exports = router;

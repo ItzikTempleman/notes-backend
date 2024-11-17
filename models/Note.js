@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Define the schema
+
 const NoteSchema = new mongoose.Schema({
     noteId: { type: Number, required: true, unique: true },
     content: { type: String, required: true },
@@ -14,5 +14,5 @@ const NoteSchema = new mongoose.Schema({
     fontWeight: { type: Number, default: 400 }
 });
 
-// Correctly export the Note model
+
 module.exports = mongoose.model('Note', NoteSchema);

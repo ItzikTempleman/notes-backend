@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const Note = require('../models/Note'); // Ensure this path is correct
+const Note = require('../models/Note');
 
-// POST: Create a new note
+
 router.post('/notes', async (req, res) => {
     try {
         const newNote = new Note(req.body);
@@ -13,17 +13,17 @@ router.post('/notes', async (req, res) => {
     }
 });
 
-// GET: Retrieve notes for a specific user
+
 router.get('/notes/user/:userId', async (req, res) => {
     try {
-        const notes = await Note.find({ userId: req.params.userId });  // Correct usage
+        const notes = await Note.find({ userId: req.params.userId });
         res.json(notes);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// GET: Retrieve a specific note by noteId
+
 router.get('/notes/:noteId', async (req, res) => {
     try {
         const note = await Note.findOne({ noteId: req.params.noteId });
@@ -34,4 +34,4 @@ router.get('/notes/:noteId', async (req, res) => {
     }
 });
 
-module.exports = router;  // Export the router
+module.exports = router;

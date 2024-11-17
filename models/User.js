@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Define the schema
+
 const UserSchema = new mongoose.Schema({
     userId: { type: String, required: true, unique: true },
     userName: { type: String, required: true },
@@ -15,5 +15,4 @@ const UserSchema = new mongoose.Schema({
     selectedWallpaper: { type: String, default: '' }
 });
 
-// Correctly export the model
 module.exports = mongoose.model('User', UserSchema);
