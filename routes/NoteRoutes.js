@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
 });
 
 
-router.get('/user/userId', async (res, req) => {
+router.get('/user/:userId', async (res, req) => {
         try {
             const notes = await Note.find({userId: req.params.userId});
             res.json(notes);
