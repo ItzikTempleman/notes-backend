@@ -4,7 +4,7 @@ const userRoutes = require('./routes/UserRoutes');
 const noteRoutes = require('./routes/NoteRoutes');
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 
 const mongoUri = 'mongodb+srv://itziktempleman:ous0KAHcRTrDH9fe@notes-app-cluster.qg3k0.mongodb.net/notesApp?retryWrites=true&w=majority';
