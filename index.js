@@ -6,7 +6,7 @@ const noteRoutes = require('./routes/NoteRoutes');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-
+//const mongoUri = process.env.MONGO_URI;
 const mongoUri = 'mongodb+srv://itziktempleman:ous0KAHcRTrDH9fe@notes-app-cluster.qg3k0.mongodb.net/notesApp?retryWrites=true&w=majority';
 
 mongoose.connect(mongoUri)
@@ -15,8 +15,8 @@ mongoose.connect(mongoUri)
 
 app.use(express.json());
 
-app.use('/api', userRoutes);
-app.use('/api', noteRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/notes', noteRoutes);
 
 
 app.get('/', (req, res) => {
@@ -26,3 +26,4 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
+
