@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 
 
-router.post('/users', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const newUser = new User(req.body);
         await newUser.save();
@@ -12,6 +12,12 @@ router.post('/users', async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 });
+
+
+
+
+
+
 
 
 router.get('/users', async (req, res) => {
