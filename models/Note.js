@@ -10,9 +10,15 @@ const NoteSchema = new mongoose.Schema({
     isPinned: { type: Boolean, default: false },
     fontColor: { type: Number, default: 0 },
     fontSize: { type: Number, default: 20 },
-    userId: { type: String, required: true },
-    fontWeight: { type: Number, default: 400 }
+    fontWeight: { type: Number, default: 400 },
+
+    userId: {
+        type: mongoose.Schema.Types.String,
+        ref: 'User',  // Refers to the User model
+        required: true
+    }
 });
+
 
 
 module.exports = mongoose.model('Note', NoteSchema);

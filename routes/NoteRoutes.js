@@ -9,10 +9,19 @@ router.post('/', async (req, res) => {
         await newNote.save();
         res.status(201).json(newNote);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({error: err.message});
     }
 });
 
 
+router.get('/user/userId', async (res, req) => {
+        try {
+            const notes = await Note.find({userId: req.params.userId});
+            res.json(notes);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+);
 
 module.exports = router;
