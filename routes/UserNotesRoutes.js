@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Note = require('../models/Note');
 
-
-router.post('/', async (req, res) => {
+router.post('/users', async (req, res) => {
     try {
         const newUser = new User(req.body);
         await newUser.save();
@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/', async (req, res) => {
+router.get('/users', async (req, res) => {
     try {
         const users = await User.find();
         res.json(users);
@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
 })
 
 
-router.get('/:userId', async (req, res) => {
+router.get('/users/:userId', async (req, res) => {
         try {
             const user = await User.findOne(
                 {
@@ -42,7 +42,7 @@ router.get('/:userId', async (req, res) => {
 );
 
 
-router.delete('/:userId', async (req, res) => {
+router.delete('/users/:userId', async (req, res) => {
         try {
             const deletedUser = await User.findOneAndDelete(
                 {
@@ -58,6 +58,28 @@ router.delete('/:userId', async (req, res) => {
     }
 );
 
+router.post('/notes', async (req, res) => {
+    try {
+        const newNote = new Note(req.body);
+        await newNote.save();
+        res.status(201).json(newNote);
+    } catch (err) {
+        res.status(400).json({error: err.message});
+    }
+});
+
+
+router.get('/notes/user/:userId', async (req, res) => {
+        try {
+            const notes = await Note.find(
+                {userId: req.params.userId}
+            );
+            res.json(notes);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+);
 
 
 module.exports = router;

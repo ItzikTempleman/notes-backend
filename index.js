@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const userRoutes = require('./routes/UserRoutes');
-const noteRoutes = require('./routes/NoteRoutes');
+const userNoteRoutes = require('./routes/UserNotesRoutes');
+
 require('dotenv').config();
 
 const app = express();
@@ -16,8 +16,7 @@ mongoose.connect(mongoUri)
 
 app.use(express.json());
 
-app.use('/api/users', userRoutes);
-app.use('/api/notes', noteRoutes);
+app.use('/api', userNoteRoutes);
 
 
 app.get('/', (req, res) => {
