@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require('../models/User');
 const Note = require('../models/Note');
 
+//Users
+
 router.post('/users', async (req, res) => {
     try {
         const newUser = new User(req.body);
@@ -58,7 +60,13 @@ router.delete('/users/:userId', async (req, res) => {
     }
 );
 
+
+//Notes
+
 router.post('/notes', async (req, res) => {
+    if (req.body.noteId === 0) {
+        req.body.noteId = Math.floor(Math.random() * 1000000);
+    }
     try {
         const newNote = new Note(req.body);
         await newNote.save();

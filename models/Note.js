@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 
 const NoteSchema = new mongoose.Schema({
-    noteId: { type: Number, required: true, unique: true },
+    noteId: { type: Number, unique: true, default: () => Math.floor(Math.random() * 1000000) },
     content: { type: String, required: true },
     time: { type: String, default: () => new Date().toLocaleTimeString() },
     isInTrash: { type: Boolean, default: false },
