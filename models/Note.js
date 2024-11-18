@@ -14,7 +14,7 @@ const NoteSchema = new mongoose.Schema({
 
     userId: {
         type: mongoose.Schema.Types.String,
-        ref: 'User',  // Refers to the User model
+        ref: 'User',
         required: true
     }
 });
