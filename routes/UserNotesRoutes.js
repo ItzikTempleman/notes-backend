@@ -44,21 +44,22 @@ router.get('/users/:userId', async (req, res) => {
 );
 
 router.get('/users/authenticate', async (req, res) => {
-    const { email, password } = req.query;
+    console.log('Query Parameters:', req.query); // Log the query parameters
+    const { email, password } = req.query; // Extract email and password from query params
 
     try {
+        // Find user by email and password in the database
         const user = await User.findOne({ email, password });
 
         if (!user) {
             return res.status(404).json({ error: 'Invalid email or password' });
         }
 
-        res.json(user);
+        res.json(user); // Send the user data as a response if found
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message }); // Handle any server errors
     }
 });
-
 
 router.delete('/users/:userId', async (req, res) => {
         try {
