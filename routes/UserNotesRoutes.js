@@ -43,6 +43,22 @@ router.get('/users/:userId', async (req, res) => {
     }
 );
 
+router.get('/users/authenticate', async (req, res) => {
+    const { email, password } = req.query;
+
+    try {
+        const user = await User.findOne({ email, password });
+
+        if (!user) {
+            return res.status(404).json({ error: 'Invalid email or password' });
+        }
+
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 
 router.delete('/users/:userId', async (req, res) => {
         try {
