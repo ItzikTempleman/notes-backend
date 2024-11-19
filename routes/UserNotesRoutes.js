@@ -43,21 +43,16 @@ router.get('/users/:userId', async (req, res) => {
     }
 );
 
-router.get('/users/authenticate', async (req, res) => {
-    console.log('Query Parameters:', req.query); // Log the query parameters
-    const { email, password } = req.query; // Extract email and password from query params
-
+router.get('/authenticate', async (req, res) => {
+    const { email, password } = req.query;
     try {
-        // Find user by email and password in the database
         const user = await User.findOne({ email, password });
-
         if (!user) {
             return res.status(404).json({ error: 'Invalid email or password' });
         }
-
-        res.json(user); // Send the user data as a response if found
+        res.json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message }); // Handle any server errors
+        res.status(500).json({ error: err.message });
     }
 });
 
