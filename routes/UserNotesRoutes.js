@@ -45,27 +45,16 @@ router.get('/users/:userId', async (req, res) => {
 
 router.get('/authenticate', async (req, res) => {
     const { email, password } = req.query;
-
-    // Check if both email and password are provided
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required.' });
-    }
-
+    if (!email || !password) {return res.status(400).json({ error: 'Email and password are required.' });}
     try {
-        // Search for a user with matching email and password
         const user = await User.findOne({ email, password });
-
-        if (!user) {
-            return res.status(404).json({ error: 'Invalid email or password' });
-        }
-
-        // Return the found user
+        if (!user) {return res.status(404).json({ error: 'Invalid email or password' });}
         res.json(user);
     } catch (err) {
-        // Catch any server-side issues
         res.status(500).json({ error: 'Server error, please try again later.' });
     }
 });
+
 
 router.delete('/users/:userId', async (req, res) => {
         try {
