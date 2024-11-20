@@ -26,7 +26,6 @@ router.get('/users', async (req, res) => {
     }
 })
 
-
 router.get('/users/:userId', async (req, res) => {
         try {
             const user = await User.findOne(
@@ -44,17 +43,53 @@ router.get('/users/:userId', async (req, res) => {
 );
 
 router.get('/authenticate', async (req, res) => {
-    const { email, password } = req.query;
-    if (!email || !password) {return res.status(400).json({ error: 'Email and password are required.' });}
+    const {email, password} = req.query;
+    if (!email || !password) {
+        return res.status(400).json({error: 'Email and password are required.'});
+    }
     try {
-        const user = await User.findOne({ email, password });
-        if (!user) {return res.status(404).json({ error: 'Invalid email or password' });}
+        const user = await User.findOne({email, password});
+        if (!user) {
+            return res.status(404).json({error: 'Invalid email or password'});
+        }
         res.json(user);
     } catch (err) {
-        res.status(500).json({ error: 'Server error, please try again later.' });
+        res.status(500).json({error: 'Server error, please try again later.'});
     }
 });
 
+router.put('/update', async (req, res) => {
+    const {email, phoneNumber, profileImage, userId} = req.query;
+    if (!userId) {
+        return res.status(400).json({error: 'User ID is required to update user information.'});
+    }
+    try {
+        const updateFields = {};
+        if (email) updateFields.email = email;
+        if (phoneNumber) updateFields.phonenUmber = phoneNumber;
+        if (profileImage) updateFields.phonenumber = phoneNumber;
+
+        if (Object.keys(updateFields).length === 0) {
+            return res.status(400).json({error: 'At least one field (email, phoneNumber, profileImage) must be provided to update'});
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
+            {userId},
+            {$set: updateFields},
+            {new: true}
+        );
+        if (!updatedUser) {
+            return res.status(400).json({error: 'User not found'})
+        }
+
+        res.json({
+            message: 'User updated successfully',
+            user: updatedUser
+        });
+    } catch (err) {
+        res.status(500).json({error: 'Server error, please try again later'});
+    }
+});
 
 router.delete('/users/:userId', async (req, res) => {
         try {
@@ -65,13 +100,12 @@ router.delete('/users/:userId', async (req, res) => {
             if (!deletedUser) {
                 return res.status(404).json({error: 'User not found'});
             }
-            res.json({ message: 'User deleted successfully', user: deletedUser });
+            res.json({message: 'User deleted successfully', user: deletedUser});
         } catch (err) {
             res.status(500).json({error: err.message});
         }
     }
 );
-
 
 //Notes
 
@@ -88,7 +122,6 @@ router.post('/notes', async (req, res) => {
     }
 });
 
-
 router.get('/notes/user/:userId', async (req, res) => {
         try {
             const notes = await Note.find(
@@ -96,10 +129,9 @@ router.get('/notes/user/:userId', async (req, res) => {
             );
             res.json(notes);
         } catch (err) {
-            res.status(500).json({ error: err.message });
+            res.status(500).json({error: err.message});
         }
     }
 );
-
 
 module.exports = router;
