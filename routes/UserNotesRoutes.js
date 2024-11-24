@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Note = require('../models/Note');
-
+const { v4: uuidv4 } = require('uuid');
 //Users
 
 router.post('/users', async (req, res) => {
@@ -111,7 +111,7 @@ router.delete('/users/:userId', async (req, res) => {
 
 router.post('/notes', async (req, res) => {
     if (req.body.noteId === 0) {
-        req.body.noteId = Math.floor(Math.random() * 1000000);
+        req.body.noteId = uuidv4();
     }
     try {
         const newNote = new Note(req.body);
