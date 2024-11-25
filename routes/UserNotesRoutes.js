@@ -110,15 +110,31 @@ router.delete('/users/:userId', async (req, res) => {
 //Notes
 
 router.post('/notes', async (req, res) => {
-    if (req.body.noteId === 0) {
-        req.body.noteId = uuidv4();
+    const { noteId, content, userId } = req.body;
+
+    if (!Number.isInteger(noteId) || noteId <= 0) {
+        return res.status(400).json({ error: "Invalid or missing noteId. Must be a positive integer." });
     }
+
+    if (!content || !userId) {
+        return res.status(400).json({ error: "Missing required fields: content and userId." });
+    }
+
     try {
-        const newNote = new Note(req.body);
+        const existingNote = await Note.findOne({ noteId });
+        if (existingNote) {
+            return res.status(400).json({ error: `Note with ID ${noteId} already exists.` });
+        }
+        const newNote = new Note({
+            noteId,
+            content,
+            userId,
+        });
+
         await newNote.save();
         res.status(201).json(newNote);
     } catch (err) {
-        res.status(400).json({error: err.message});
+        res.status(500).json({ error: err.message });
     }
 });
 

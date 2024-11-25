@@ -5,7 +5,7 @@ const NoteSchema = new mongoose.Schema({
     noteId: {
         type: Number,
         required: true,
-        default: false
+        unique: true
     },
     content: { type: String, required: true },
     time: { type: String, default: () => new Date().toLocaleTimeString() },
@@ -15,10 +15,8 @@ const NoteSchema = new mongoose.Schema({
     fontColor: { type: Number, default: 0 },
     fontSize: { type: Number, default: 20 },
     fontWeight: { type: Number, default: 400 },
-
     userId: {
-        type: mongoose.Schema.Types.String,
-        ref: 'User',
+        type: String,
         required: true
     }
 });
