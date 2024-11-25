@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 const NoteSchema = new mongoose.Schema({
     noteId: {
         type: Number,
-        unique: true,
-        required: true
+        required: true,
+        default: false
     },
     content: { type: String, required: true },
     time: { type: String, default: () => new Date().toLocaleTimeString() },
