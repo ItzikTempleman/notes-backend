@@ -2,7 +2,11 @@ const mongoose = require('mongoose');
 
 
 const NoteSchema = new mongoose.Schema({
-    noteId: {type: String, unique: true, default: () => require('uuid')},
+    noteId: {
+        type: Number,
+        unique: true,
+        required: true
+    },
     content: { type: String, required: true },
     time: { type: String, default: () => new Date().toLocaleTimeString() },
     isInTrash: { type: Boolean, default: false },
