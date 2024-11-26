@@ -125,15 +125,19 @@ router.post('/notes', async (req, res) => {
         if (existingNote) {
             return res.status(400).json({ error: `Note with ID ${noteId} already exists.` });
         }
+
         const newNote = new Note({
             noteId,
             content,
             userId,
         });
 
-        await newNote.save();
-        res.status(201).json(newNote);
+
+        const savedNote= await newNote.save();
+        console.log("Note saved successfully:", savedNote);
+        res.status(201).json(savedNote);
     } catch (err) {
+        console.error("Error saving note:", err.message);
         res.status(500).json({ error: err.message });
     }
 });
