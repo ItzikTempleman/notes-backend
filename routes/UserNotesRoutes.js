@@ -121,6 +121,9 @@ router.post('/notes', async (req, res) => {
     }
 
     try {
+        console.log("Incoming userId:", userId.trim()); // Log incoming userId
+        const cleanUserId = userId.trim(); // Sanitize whitespace
+
         const existingNote = await Note.findOne({ noteId });
         if (existingNote) {
             return res.status(400).json({ error: `Note with ID ${noteId} already exists.` });
@@ -129,11 +132,10 @@ router.post('/notes', async (req, res) => {
         const newNote = new Note({
             noteId,
             content,
-            userId,
+            userId: cleanUserId, // Save sanitized userId
         });
 
-
-        const savedNote= await newNote.save();
+        const savedNote = await newNote.save();
         console.log("Note saved successfully:", savedNote);
         res.status(201).json(savedNote);
     } catch (err) {
@@ -143,15 +145,31 @@ router.post('/notes', async (req, res) => {
 });
 
 router.get('/notes/user/:userId', async (req, res) => {
-        try {
-            const notes = await Note.find(
-                {userId: req.params.userId}
-            );
-            res.json(notes);
-        } catch (err) {
-            res.status(500).json({error: err.message});
-        }
+    const rawUserId = req.params.userId.trim(); // Sanitize userId
+    console.log("Fetching notes for userId:", rawUserId);
+
+    try {
+        const notes = await Note.find({ userId: rawUserId });
+        console.log("Notes retrieved:", notes); // Log the retrieved notes
+        res.json(notes);
+    } catch (err) {
+        console.error("Error fetching notes:", err.message);
+        res.status(500).json({ error: err.message });
     }
-);
+});
+
+
+
+//LOG ALL NOTES IN DATABASE ONLY
+router.get('/notes', async (req, res) => {
+    try {
+        const allNotes = await Note.find();
+        console.log("All notes in the database:", allNotes); // Log everything for debugging
+        res.json(allNotes);
+    } catch (err) {
+        console.error("Error fetching all notes:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 module.exports = router;
