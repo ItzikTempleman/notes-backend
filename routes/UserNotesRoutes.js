@@ -110,6 +110,10 @@ router.delete('/users/:userId', async (req, res) => {
 //Notes
 
 router.post('/notes/user/:userId', async (req, res) => {
+    console.log("POST /notes/user/:userId");
+    console.log("Params userId:", req.params.userId);
+    console.log("Body:", req.body);
+
     const { userId } = req.params;
     const { noteId, content } = req.body;
 
