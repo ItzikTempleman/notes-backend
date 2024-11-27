@@ -108,34 +108,48 @@ router.delete('/users/:userId', async (req, res) => {
 );
 
 //Notes
+
 router.post('/notes', async (req, res) => {
     const { noteId, content, userId } = req.body;
+
     if (!Number.isInteger(noteId) || noteId <= 0) {
-        return res.status(400).json({ error: "Invalid or missing noteId. Must be a positive integer."});
+        return res.status(400).json({ error: "Invalid or missing noteId. Must be a positive integer." });
     }
+
     if (!content || !userId) {
-        return res.status(400).json({ error: "Missing required fields: content and userId."});
+        return res.status(400).json({ error: "Missing required fields: content and userId." });
     }
+
     try {
         const cleanUserId = userId.trim();
-        const userExists = await User.findOne({ userId: cleanUserId});
+
+        // Check if the user exists
+        const userExists = await User.findOne({ userId: cleanUserId });
         if (!userExists) {
-            return res.status(404).json({ error: `User with ID ${cleanUserId} not found.`});
+            return res.status(404).json({ error: `User with ID ${cleanUserId} not found.` });
         }
-        const existingNote = await Note.findOne({ noteId, userId: cleanUserId});
+
+        // Check if the noteId already exists for this user
+        const existingNote = await Note.findOne({ noteId, userId: cleanUserId });
         if (existingNote) {
-            return res.status(400).json({ error: `Note with ID ${noteId} already exists for this user.`});
+            return res.status(400).json({ error: `Note with ID ${noteId} already exists for this user.` });
         }
-        const newNote = new Note({noteId, content, userId: cleanUserId});
+
+        // Create the new note
+        const newNote = new Note({
+            noteId,
+            content,
+            userId: cleanUserId,  // Sanitize and save the userId
+        });
+
+        // Save the note
         const savedNote = await newNote.save();
-        console.log("Note saved successfully:", savedNote);
-        res.status(201).json(savedNote);
+        return res.status(201).json(savedNote);
     } catch (err) {
         console.error("Error saving note:", err.message);
-        res.status(500).json({ error: 'Server error, please try again later.'});
+        return res.status(500).json({ error: 'Server error, please try again later.' });
     }
 });
-
 
 router.get('/notes/user/:userId', async (req, res) => {
     const { userId } = req.params;
@@ -154,22 +168,6 @@ router.get('/notes/user/:userId', async (req, res) => {
         return res.status(500).json({ error: 'Server error, please try again later.' });
     }
 });
-
-/*
-router.get('/notes/user/:userId', async (req, res) => {
-    const rawUserId = req.params.userId.trim(); // Sanitize userId
-    console.log("Fetching notes for userId:", rawUserId);
-
-    try {
-        const notes = await Note.find({ userId: rawUserId });
-        console.log("Notes retrieved:", notes); // Log the retrieved notes
-        res.json(notes);
-    } catch (err) {
-        console.error("Error fetching notes:", err.message);
-        res.status(500).json({ error: err.message });
-    }
-});
-*/
 
 
 
