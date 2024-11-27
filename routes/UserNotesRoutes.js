@@ -137,8 +137,25 @@ router.post('/notes', async (req, res) => {
 });
 
 
+router.get('/notes/user/:userId', async (req, res) => {
+    const { userId } = req.params;
 
+    try {
+        // Find all notes for the specific user
+        const notes = await Note.find({ userId });
 
+        if (notes.length === 0) {
+            return res.status(404).json({ message: `No notes found for user ${userId}.` });
+        }
+
+        return res.status(200).json(notes);
+    } catch (err) {
+        console.error("Error fetching notes:", err.message);
+        return res.status(500).json({ error: 'Server error, please try again later.' });
+    }
+});
+
+/*
 router.get('/notes/user/:userId', async (req, res) => {
     const rawUserId = req.params.userId.trim(); // Sanitize userId
     console.log("Fetching notes for userId:", rawUserId);
@@ -152,6 +169,7 @@ router.get('/notes/user/:userId', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+*/
 
 
 
