@@ -113,27 +113,35 @@ router.post('/notes/user/:userId', async (req, res) => {
     const { userId } = req.params;
     const { noteId, content } = req.body;
 
+    console.log("Incoming POST request:");
+    console.log("userId:", userId);
+    console.log("noteId:", noteId);
+    console.log("content:", content);
+
     if (!noteId || !content) {
         return res.status(400).json({ error: "Missing required fields: noteId and content." });
     }
 
     try {
-        console.log("Incoming userId:", userId.trim());
+        console.log("Trimming userId...");
         const cleanUserId = userId.trim();
 
         // Check if the user exists
+        console.log("Checking if user exists...");
         const userExists = await User.findOne({ userId: cleanUserId });
         if (!userExists) {
             return res.status(404).json({ error: `User with ID ${cleanUserId} not found.` });
         }
 
         // Ensure noteId is unique per user
+        console.log("Checking if noteId is unique...");
         const existingNote = await Note.findOne({ noteId, userId: cleanUserId });
         if (existingNote) {
             return res.status(400).json({ error: `Note with ID ${noteId} already exists for this user.` });
         }
 
         // Create and save the note
+        console.log("Saving note...");
         const newNote = new Note({
             noteId,
             content,
@@ -149,36 +157,24 @@ router.post('/notes/user/:userId', async (req, res) => {
     }
 });
 
+
+
 router.get('/notes/user/:userId', async (req, res) => {
-    const { userId } = req.params;
+    const rawUserId = req.params.userId.trim(); // Sanitize userId
+    console.log("Fetching notes for userId:", rawUserId);
 
     try {
-        // Find all notes for the specific user
-        const notes = await Note.find({ userId });
-
-        if (notes.length === 0) {
-            return res.status(404).json({ message: `No notes found for user ${userId}.` });
-        }
-
-        return res.status(200).json(notes);
+        const notes = await Note.find({ userId: rawUserId });
+        console.log("Notes retrieved:", notes); // Log the retrieved notes
+        res.json(notes);
     } catch (err) {
         console.error("Error fetching notes:", err.message);
-        return res.status(500).json({ error: 'Server error, please try again later.' });
-    }
-});
-
-
-
-//LOG ALL NOTES IN DATABASE ONLY
-router.get('/notes', async (req, res) => {
-    try {
-        const allNotes = await Note.find();
-        console.log("All notes in the database:", allNotes); // Log everything for debugging
-        res.json(allNotes);
-    } catch (err) {
-        console.error("Error fetching all notes:", err.message);
         res.status(500).json({ error: err.message });
     }
 });
+
+
+
+
 
 module.exports = router;
