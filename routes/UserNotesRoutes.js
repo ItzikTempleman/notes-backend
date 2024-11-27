@@ -121,6 +121,7 @@ router.post('/notes', async (req, res) => {
     }
 
     try {
+        console.log("Incoming userId:", userId.trim());
         const cleanUserId = userId.trim();
 
         // Check if the user exists
@@ -129,7 +130,7 @@ router.post('/notes', async (req, res) => {
             return res.status(404).json({ error: `User with ID ${cleanUserId} not found.` });
         }
 
-        // Check if the noteId already exists for this user
+        // Ensure noteId is unique per user
         const existingNote = await Note.findOne({ noteId, userId: cleanUserId });
         if (existingNote) {
             return res.status(400).json({ error: `Note with ID ${noteId} already exists for this user.` });
@@ -139,11 +140,12 @@ router.post('/notes', async (req, res) => {
         const newNote = new Note({
             noteId,
             content,
-            userId: cleanUserId,  // Sanitize and save the userId
+            userId: cleanUserId,
         });
 
         // Save the note
         const savedNote = await newNote.save();
+        console.log("Note saved successfully:", savedNote);
         return res.status(201).json(savedNote);
     } catch (err) {
         console.error("Error saving note:", err.message);
