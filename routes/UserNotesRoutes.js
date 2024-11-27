@@ -108,41 +108,36 @@ router.delete('/users/:userId', async (req, res) => {
 );
 
 //Notes
-
 router.post('/notes', async (req, res) => {
     const { noteId, content, userId } = req.body;
-
     if (!Number.isInteger(noteId) || noteId <= 0) {
-        return res.status(400).json({ error: "Invalid or missing noteId. Must be a positive integer." });
+        return res.status(400).json({ error: "Invalid or missing noteId. Must be a positive integer."});
     }
-
     if (!content || !userId) {
-        return res.status(400).json({ error: "Missing required fields: content and userId." });
+        return res.status(400).json({ error: "Missing required fields: content and userId."});
     }
-
     try {
-        console.log("Incoming userId:", userId.trim()); // Log incoming userId
-        const cleanUserId = userId.trim(); // Sanitize whitespace
-
-        const existingNote = await Note.findOne({ noteId });
-        if (existingNote) {
-            return res.status(400).json({ error: `Note with ID ${noteId} already exists.` });
+        const cleanUserId = userId.trim();
+        const userExists = await User.findOne({ userId: cleanUserId});
+        if (!userExists) {
+            return res.status(404).json({ error: `User with ID ${cleanUserId} not found.`});
         }
-
-        const newNote = new Note({
-            noteId,
-            content,
-            userId: cleanUserId, // Save sanitized userId
-        });
-
+        const existingNote = await Note.findOne({ noteId, userId: cleanUserId});
+        if (existingNote) {
+            return res.status(400).json({ error: `Note with ID ${noteId} already exists for this user.`});
+        }
+        const newNote = new Note({noteId, content, userId: cleanUserId});
         const savedNote = await newNote.save();
         console.log("Note saved successfully:", savedNote);
         res.status(201).json(savedNote);
     } catch (err) {
         console.error("Error saving note:", err.message);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Server error, please try again later.'});
     }
 });
+
+
+
 
 router.get('/notes/user/:userId', async (req, res) => {
     const rawUserId = req.params.userId.trim(); // Sanitize userId
