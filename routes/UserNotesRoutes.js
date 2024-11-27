@@ -109,7 +109,7 @@ router.delete('/users/:userId', async (req, res) => {
 
 //Notes
 
-router.post('/notes', async (req, res) => {
+router.post('/notes/user/:userId', async (req, res) => {
     const { noteId, content, userId } = req.body;
 
     if (!Number.isInteger(noteId) || noteId <= 0) {
