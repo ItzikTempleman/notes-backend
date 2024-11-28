@@ -112,18 +112,21 @@ router.delete('/users/:userId', async (req, res) => {
 router.post('/notes/user/:userId', async (req, res) => {
     console.log("POST /notes/user/:userId");
     console.log("Request Body:", req.body);
+    console.log("Request Params:", req.params);
+
     const { noteId, content } = req.body;
     const userId = req.params.userId.trim();
 
     if (!noteId || !content) {
-        console.error("Invalid request: Missing noteId or content");
         return res.status(400).json({ error: "Missing required fields: noteId and content" });
     }
+
     try {
         const userExists = await User.findOne({ userId });
         if (!userExists) {
             return res.status(404).json({ error: `User with ID ${userId} not found.` });
         }
+
         const newNote = new Note({
             noteId,
             content,
@@ -132,7 +135,7 @@ router.post('/notes/user/:userId', async (req, res) => {
         });
 
         const savedNote = await newNote.save();
-        console.log("Note saved successfully:", savedNote);
+        console.log("Saved Note:", savedNote);
 
         res.status(201).json(savedNote);
     } catch (err) {
@@ -140,8 +143,6 @@ router.post('/notes/user/:userId', async (req, res) => {
         res.status(500).json({ error: "Server error, please try again later." });
     }
 });
-
-
 
 router.get('/notes/user/:userId', async (req, res) => {
         try {
