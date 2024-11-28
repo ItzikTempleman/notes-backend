@@ -111,50 +111,35 @@ router.delete('/users/:userId', async (req, res) => {
 
 router.post('/notes/user/:userId', async (req, res) => {
     console.log("POST /notes/user/:userId");
-    console.log("Params userId:", req.params.userId);
-    console.log("Body:", req.body);
+    console.log("Received userId:", req.params.userId);
+    console.log("Request Body:", req.body);
 
-    const { userId } = req.params;
     const { noteId, content } = req.body;
-
-    console.log("Incoming POST request:");
-    console.log("userId:", userId);
-    console.log("noteId:", noteId);
-    console.log("content:", content);
 
     if (!noteId || !content) {
         return res.status(400).json({ error: "Missing required fields: noteId and content." });
     }
 
     try {
-        console.log("Checking if user exists...");
-        const userExists = await User.findOne({ userId });
+        const userExists = await User.findOne({ userId: req.params.userId });
         if (!userExists) {
-            return res.status(404).json({ error: `User with ID ${userId} not found.` });
+            return res.status(404).json({ error: `User with ID ${req.params.userId} not found.` });
         }
-
-        console.log("Checking if noteId is unique...");
-        const existingNote = await Note.findOne({ noteId, userId });
-        if (existingNote) {
-            return res.status(400).json({ error: `Note with ID ${noteId} already exists for this user.` });
-        }
-
-        console.log("Saving note...");
         const newNote = new Note({
             noteId,
             content,
-            userId,
+            userId: req.params.userId,
         });
 
         const savedNote = await newNote.save();
-        console.log("Note saved successfully:", savedNote);
+        console.log("Note saved successfully:", savedNote);  // Add logging here
+
         return res.status(201).json(savedNote);
     } catch (err) {
         console.error("Error saving note:", err.message);
         return res.status(500).json({ error: 'Server error, please try again later.' });
     }
 });
-
 
 
 router.get('/notes/user/:userId', async (req, res) => {
