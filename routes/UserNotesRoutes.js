@@ -122,11 +122,20 @@ router.post('/notes/user/:userId', async (req, res) => {
     }
 
     try {
+        // Ensure the user exists
         const userExists = await User.findOne({ userId });
         if (!userExists) {
             return res.status(404).json({ error: `User with ID ${userId} not found.` });
         }
 
+        // Check for duplicate noteId per userId
+        const existingNote = await Note.findOne({ noteId, userId });
+        if (existingNote) {
+            console.warn(`Duplicate noteId detected: ${noteId} for userId: ${userId}`);
+            return res.status(409).json({ error: `Note with ID ${noteId} already exists for user ${userId}.` });
+        }
+
+        // Create and save the note
         const newNote = new Note({
             noteId,
             content,
@@ -143,17 +152,22 @@ router.post('/notes/user/:userId', async (req, res) => {
         res.status(500).json({ error: "Server error, please try again later." });
     }
 });
-
 router.get('/notes/user/:userId', async (req, res) => {
-        try {
-            const notes = await Note.find(
-                {userId: req.params.userId}
-            );
-            res.json(notes);
-        } catch (err) {
-            res.status(500).json({error: err.message});
+    const userId = req.params.userId.trim();
+    console.log("Fetching notes for userId:", userId);
+
+    try {
+        const notes = await Note.find({ userId });
+        if (notes.length === 0) {
+            console.warn("No notes found for userId:", userId);
+        } else {
+            console.log("Notes retrieved:", notes);
         }
+        res.status(200).json(notes);
+    } catch (err) {
+        console.error("Error fetching notes for userId:", userId, err.message);
+        res.status(500).json({ error: err.message });
     }
-);
+});
 
 module.exports = router;
