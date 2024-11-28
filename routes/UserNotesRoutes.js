@@ -110,13 +110,12 @@ router.delete('/users/:userId', async (req, res) => {
 //Notes
 
 router.post('/notes/user/:userId', async (req, res) => {
-    console.log("POST /notes/user/:userId");
-    console.log("Received userId:", req.params.userId);
-    console.log("Request Body:", req.body);
+    console.log("Received request body:", req.body); // Debugging request payload
 
     const { noteId, content } = req.body;
 
     if (!noteId || !content) {
+        console.error("Invalid request: Missing noteId or content");
         return res.status(400).json({ error: "Missing required fields: noteId and content." });
     }
 
@@ -125,6 +124,7 @@ router.post('/notes/user/:userId', async (req, res) => {
         if (!userExists) {
             return res.status(404).json({ error: `User with ID ${req.params.userId} not found.` });
         }
+
         const newNote = new Note({
             noteId,
             content,
@@ -132,15 +132,14 @@ router.post('/notes/user/:userId', async (req, res) => {
         });
 
         const savedNote = await newNote.save();
-        console.log("Note saved successfully:", savedNote);  // Add logging here
+        console.log("Note saved successfully:", savedNote);
 
-        return res.status(201).json(savedNote);
+        return res.status(201).json(savedNote); // Return saved note
     } catch (err) {
         console.error("Error saving note:", err.message);
         return res.status(500).json({ error: 'Server error, please try again later.' });
     }
 });
-
 
 router.get('/notes/user/:userId', async (req, res) => {
     const rawUserId = req.params.userId.trim(); // Sanitize userId
@@ -155,9 +154,5 @@ router.get('/notes/user/:userId', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-
-
-
 
 module.exports = router;

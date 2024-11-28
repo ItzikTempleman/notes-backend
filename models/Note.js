@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-
-
 const NoteSchema = new mongoose.Schema({
     noteId: {
         type: Number,
@@ -20,7 +18,5 @@ const NoteSchema = new mongoose.Schema({
         required: true
     }
 });
-
-
 
 module.exports = mongoose.model('Note', NoteSchema);
