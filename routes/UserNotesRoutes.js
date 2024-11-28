@@ -110,7 +110,9 @@ router.delete('/users/:userId', async (req, res) => {
 //Notes
 
 router.post('/notes/user/:userId', async (req, res) => {
-    console.log("Received request body:", req.body); // Debugging request payload
+    console.log("POST /notes/user/:userId");
+    console.log("Received userId:", req.params.userId);
+    console.log("Request Body:", req.body); // Log the incoming data
 
     const { noteId, content } = req.body;
 
@@ -132,12 +134,12 @@ router.post('/notes/user/:userId', async (req, res) => {
         });
 
         const savedNote = await newNote.save();
-        console.log("Note saved successfully:", savedNote);
+        console.log("Note saved successfully:", savedNote); // Log the saved note
 
-        return res.status(201).json(savedNote); // Return saved note
+        return res.status(201).json(savedNote);
     } catch (err) {
         console.error("Error saving note:", err.message);
-        return res.status(500).json({ error: 'Server error, please try again later.' });
+        return res.status(500).json({ error: "Server error, please try again later." });
     }
 });
 
