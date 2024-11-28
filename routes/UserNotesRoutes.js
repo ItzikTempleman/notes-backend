@@ -109,18 +109,39 @@ router.delete('/users/:userId', async (req, res) => {
 
 //Notes
 
-router.post('/notes', async (req, res) => {
-    if (req.body.noteId === 0) {
-        req.body.noteId = uuidv4();
+router.post('/notes/user/:userId', async (req, res) => {
+    console.log("POST /notes/user/:userId");
+    console.log("Request Body:", req.body);
+    const { noteId, content } = req.body;
+    const userId = req.params.userId.trim();
+
+    if (!noteId || !content) {
+        console.error("Invalid request: Missing noteId or content");
+        return res.status(400).json({ error: "Missing required fields: noteId and content" });
     }
     try {
-        const newNote = new Note(req.body);
-        await newNote.save();
-        res.status(201).json(newNote);
+        const userExists = await User.findOne({ userId });
+        if (!userExists) {
+            return res.status(404).json({ error: `User with ID ${userId} not found.` });
+        }
+        const newNote = new Note({
+            noteId,
+            content,
+            userId,
+            time: new Date().toISOString(),
+        });
+
+        const savedNote = await newNote.save();
+        console.log("Note saved successfully:", savedNote);
+
+        res.status(201).json(savedNote);
     } catch (err) {
-        res.status(400).json({error: err.message});
+        console.error("Error saving note:", err.message);
+        res.status(500).json({ error: "Server error, please try again later." });
     }
 });
+
+
 
 router.get('/notes/user/:userId', async (req, res) => {
         try {
