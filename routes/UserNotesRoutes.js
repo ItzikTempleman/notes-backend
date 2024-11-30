@@ -114,10 +114,11 @@ router.post('/notes/user/:userId', async (req, res) => {
     console.log("Request Body:", req.body);
     console.log("Request Params:", req.params);
 
-    const { noteId, content } = req.body;
     const userId = req.params.userId.trim();
+    const { noteId, content } = req.body;
 
-    if (!noteId || !content) {
+    // Validate required fields
+    if (noteId === undefined || noteId === null || content === undefined || content === null) {
         return res.status(400).json({ error: "Missing required fields: noteId and content" });
     }
 
@@ -137,10 +138,9 @@ router.post('/notes/user/:userId', async (req, res) => {
 
         // Create and save the note
         const newNote = new Note({
-            noteId,
-            content,
-            userId,
-            time: new Date().toISOString(),
+            ...req.body,       // Include all fields from the request body
+            userId,            // Ensure userId matches the one in the URL
+            time: new Date().toISOString(), // Set the current time
         });
 
         const savedNote = await newNote.save();
@@ -148,10 +148,16 @@ router.post('/notes/user/:userId', async (req, res) => {
 
         res.status(201).json(savedNote);
     } catch (err) {
-        console.error("Error saving note:", err.message);
+        console.error("Error saving note:", err); // Log the full error
         res.status(500).json({ error: "Server error, please try again later." });
     }
 });
+
+
+
+
+
+
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
     console.log("Fetching notes for userId:", userId);
