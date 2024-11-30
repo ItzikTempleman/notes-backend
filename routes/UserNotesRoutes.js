@@ -110,56 +110,41 @@ router.delete('/users/:userId', async (req, res) => {
 //Notes
 
 router.post('/notes/user/:userId', async (req, res) => {
-    console.log("POST /notes/user/:userId");
-    console.log("Request Body:", req.body);
-    console.log("Request Params:", req.params);
-
     let { noteId, content } = req.body;
     const userId = req.params.userId.trim();
 
-    if (content === undefined || content === null) {
+    if (!content) {
         return res.status(400).json({ error: "Missing required field: content" });
     }
-
     try {
-        // Ensure the user exists
         const userExists = await User.findOne({ userId });
         if (!userExists) {
             return res.status(404).json({ error: `User with ID ${userId} not found.` });
         }
-
-        // If noteId is 0, generate a new noteId
         if (noteId === 0) {
             const lastNote = await Note.findOne({ userId }).sort({ noteId: -1 });
             noteId = lastNote && lastNote.noteId ? lastNote.noteId + 1 : 1;
         } else {
-            // Check for duplicate noteId per userId
             const existingNote = await Note.findOne({ noteId, userId });
             if (existingNote) {
                 console.warn(`Duplicate noteId detected: ${noteId} for userId: ${userId}`);
                 return res.status(409).json({ error: `Note with ID ${noteId} already exists for user ${userId}.` });
             }
         }
-
-        // Create and save the note
         const newNote = new Note({
             ...req.body,
             noteId,
             userId,
             time: new Date().toISOString(),
         });
-
         const savedNote = await newNote.save();
         console.log("Saved Note:", savedNote);
-
         res.status(201).json(savedNote);
     } catch (err) {
         console.error("Error saving note:", err);
         res.status(500).json({ error: "Server error, please try again later." });
     }
 });
-
-
 
 
 

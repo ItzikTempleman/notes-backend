@@ -9,10 +9,7 @@ function getCurrentTime() {
 const NoteSchema = new mongoose.Schema({
     noteId: { type: Number, required: true },
     content: { type: String, required: true },
-    time: {
-        type: String,
-        default: getCurrentTime,
-    },
+    time: { type: String },
     isInTrash: { type: Boolean, default: false },
     isStarred: { type: Boolean, default: false },
     isPinned: { type: Boolean, default: false },
