@@ -111,7 +111,7 @@ router.delete('/users/:userId', async (req, res) => {
 
 router.post('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
-    let { noteId, content } = req.body;
+    let { noteId, content, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
     if (!content) {
         return res.status(400).json({ error: "Missing required field: content" });
@@ -130,10 +130,16 @@ router.post('/notes/user/:userId', async (req, res) => {
             noteId = lastNote && lastNote.noteId ? lastNote.noteId + 1 : 1;
         }
 
-        // Create and save the note
+        // Create and save the note with only the required fields
         const newNote = new Note({
-            ...req.body,
             noteId,
+            content,
+            isInTrash,
+            isStarred,
+            isPinned,
+            fontColor,
+            fontSize,
+            fontWeight,
             userId,
             time: new Date().toISOString(),
         });
@@ -145,6 +151,7 @@ router.post('/notes/user/:userId', async (req, res) => {
         res.status(500).json({ error: "Server error, please try again later." });
     }
 });
+
 
 
 router.get('/notes/user/:userId', async (req, res) => {
