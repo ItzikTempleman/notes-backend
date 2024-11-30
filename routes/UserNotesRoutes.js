@@ -114,12 +114,11 @@ router.post('/notes/user/:userId', async (req, res) => {
     console.log("Request Body:", req.body);
     console.log("Request Params:", req.params);
 
+    let { noteId, content } = req.body;
     const userId = req.params.userId.trim();
-    const { noteId, content } = req.body;
 
-    // Validate required fields
-    if (noteId === undefined || noteId === null || content === undefined || content === null) {
-        return res.status(400).json({ error: "Missing required fields: noteId and content" });
+    if (content === undefined || content === null) {
+        return res.status(400).json({ error: "Missing required field: content" });
     }
 
     try {
@@ -129,18 +128,25 @@ router.post('/notes/user/:userId', async (req, res) => {
             return res.status(404).json({ error: `User with ID ${userId} not found.` });
         }
 
-        // Check for duplicate noteId per userId
-        const existingNote = await Note.findOne({ noteId, userId });
-        if (existingNote) {
-            console.warn(`Duplicate noteId detected: ${noteId} for userId: ${userId}`);
-            return res.status(409).json({ error: `Note with ID ${noteId} already exists for user ${userId}.` });
+        // If noteId is 0, generate a new noteId
+        if (noteId === 0) {
+            const lastNote = await Note.findOne({ userId }).sort({ noteId: -1 });
+            noteId = lastNote && lastNote.noteId ? lastNote.noteId + 1 : 1;
+        } else {
+            // Check for duplicate noteId per userId
+            const existingNote = await Note.findOne({ noteId, userId });
+            if (existingNote) {
+                console.warn(`Duplicate noteId detected: ${noteId} for userId: ${userId}`);
+                return res.status(409).json({ error: `Note with ID ${noteId} already exists for user ${userId}.` });
+            }
         }
 
         // Create and save the note
         const newNote = new Note({
-            ...req.body,       // Include all fields from the request body
-            userId,            // Ensure userId matches the one in the URL
-            time: new Date().toISOString(), // Set the current time
+            ...req.body,
+            noteId,
+            userId,
+            time: new Date().toISOString(),
         });
 
         const savedNote = await newNote.save();
@@ -148,11 +154,10 @@ router.post('/notes/user/:userId', async (req, res) => {
 
         res.status(201).json(savedNote);
     } catch (err) {
-        console.error("Error saving note:", err); // Log the full error
+        console.error("Error saving note:", err);
         res.status(500).json({ error: "Server error, please try again later." });
     }
 });
-
 
 
 
