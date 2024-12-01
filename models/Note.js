@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Int32 = require('mongoose-int32').loadType(mongoose);
 
 const NoteSchema = new mongoose.Schema({
-    noteId: { type: Number, required: true, unique: false },
+    noteId: { type: Number, required: true },
     userId: { type: String, required: true },
     content: { type: String, required: true },
     time: { type: String, default: () => new Date().toISOString() },
@@ -13,5 +13,7 @@ const NoteSchema = new mongoose.Schema({
     fontSize: { type: Number, default: 20 },
     fontWeight: { type: Number, default: 400 },
 });
+
+NoteSchema.index({ userId: 1, noteId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Note', NoteSchema);
