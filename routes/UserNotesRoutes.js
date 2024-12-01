@@ -111,47 +111,50 @@ router.delete('/users/:userId', async (req, res) => {
 
 
 router.post('/notes/user/:userId', async (req, res) => {
-    const userId = req.params.userId.trim();
+    const { userId } = req.params;
     const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
+    // Validate the required fields
     if (!content) {
-        return res.status(400).json({ error: "Missing required field: content" });
+        return res.status(400).json({ error: "Content is required" });
     }
 
     try {
+        // Check if user exists before saving the note
         const userExists = await User.findOne({ userId });
         if (!userExists) {
-            return res.status(404).json({ error: `User with ID ${userId} not found.` });
+            return res.status(404).json({ error: `User with ID ${userId} not found` });
         }
 
+        // Handle noteId generation or increment
+        let finalNoteId = noteId;
         if (!noteId || noteId === 0) {
             const lastNote = await Note.findOne({ userId }).sort({ noteId: -1 });
-            noteId = lastNote && lastNote.noteId ? lastNote.noteId + 1 : 1;
+            finalNoteId = lastNote && lastNote.noteId ? lastNote.noteId + 1 : 1;
         }
 
+        // Create a new note with provided details
         const newNote = new Note({
-            noteId,
+            noteId: finalNoteId,
             content,
             time: time || new Date().toISOString(),
-            isInTrash,
-            isStarred,
-            isPinned,
-            fontColor,
-            fontSize,
-            fontWeight,
-            userId,
+            isInTrash: isInTrash || false,
+            isStarred: isStarred || false,
+            isPinned: isPinned || false,
+            fontColor: fontColor || -16777216, // default to black if not specified
+            fontSize: fontSize || 20,
+            fontWeight: fontWeight || 400,
+            userId
         });
 
+        // Save the new note
         const savedNote = await newNote.save();
         res.status(201).json(savedNote);
     } catch (err) {
-        console.error("Error saving note:", err);
-        res.status(500).json({ error: err.message });
+        console.error("Error processing request for user ID", userId, "with body", req.body, err);
+        res.status(500).json({ error: "Server error, please try again later." });
     }
 });
-
-
-
 
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
