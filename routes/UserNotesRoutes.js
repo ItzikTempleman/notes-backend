@@ -158,4 +158,21 @@ router.get('/notes/user/:userId', async (req, res) => {
     }
 });
 
+
+router.delete('/notes/delete-all', async (req, res) => {
+    try {
+        // Perform the delete operation
+        const result = await Note.deleteMany({});
+        res.status(200).json({
+            message: "All notes have been deleted successfully",
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        console.error('Error deleting notes:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
 module.exports = router;
