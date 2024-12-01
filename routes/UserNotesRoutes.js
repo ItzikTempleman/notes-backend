@@ -108,7 +108,6 @@ router.delete('/users/:userId', async (req, res) => {
 );
 
 //Notes
-
 router.post('/notes/user/:userId', async (req, res) => {
     const { userId } = req.params;
     const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
@@ -126,7 +125,6 @@ router.post('/notes/user/:userId', async (req, res) => {
             return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
         }
 
-        // Create a new note
         const newNote = new Note({
             userId,
             noteId,
@@ -140,19 +138,16 @@ router.post('/notes/user/:userId', async (req, res) => {
             fontWeight
         });
 
-        // Save the new note
         const savedNote = await newNote.save();
         res.status(201).json(savedNote);
     } catch (err) {
         console.error("Failed to save note:", err);
-        if (err.code === 11000) {
-            // This now means a truly unexpected duplicate key error
-            res.status(409).json({ error: "Unexpected duplicate key error.", details: err });
-        } else {
-            res.status(500).json({ error: "Server error, please try again later.", details: err });
-        }
+        res.status(500).json({ error: "Server error, please try again later.", details: err });
     }
 });
+
+
+
 
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
