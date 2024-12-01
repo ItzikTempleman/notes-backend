@@ -109,38 +109,21 @@ router.delete('/users/:userId', async (req, res) => {
 
 //Notes
 router.post('/notes/user/:userId', async (req, res) => {
-    const { userId } = req.params;
-    const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
-
-    if (!noteId) {
-        return res.status(400).json({ error: "noteId is required and must be a number." });
-    }
-    if (!content) {
-        return res.status(400).json({ error: "Content is required." });
-    }
-
-    const newNote = new Note({
-        noteId,
-        userId,
-        content,
-        time: time || new Date().toISOString(),
-        isInTrash,
-        isStarred,
-        isPinned,
-        fontColor,
-        fontSize,
-        fontWeight
-    });
+    const { userId, noteId, content } = req.body;
 
     try {
+        const existingNote = await Note.findOne({ userId, noteId });
+        if (existingNote) {
+            return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
+        }
+        const newNote = new Note({ ...req.body });
         const savedNote = await newNote.save();
         res.status(201).json(savedNote);
     } catch (err) {
-        console.error("Error saving the note:", err);
+        console.error("Error processing request:", err);
         res.status(500).json({ error: "Server error, please try again later.", details: err });
     }
 });
-
 
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
