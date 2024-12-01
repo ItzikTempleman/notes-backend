@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Int32 = require('mongoose-int32').loadType(mongoose);
 
 const NoteSchema = new mongoose.Schema({
-    noteId: { type: Number, required: true },
+    noteId: { type: Number, required: true, unique: false },
     userId: { type: String, required: true },
     content: { type: String, required: true },
     time: { type: String, default: () => new Date().toISOString() },

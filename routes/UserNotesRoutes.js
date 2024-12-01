@@ -120,6 +120,7 @@ router.post('/notes/user/:userId', async (req, res) => {
     }
 
     try {
+        // Check for existing note with the same noteId under the same userId to prevent duplicates
         const existingNote = await Note.findOne({ userId, noteId });
         if (existingNote) {
             return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
@@ -145,7 +146,6 @@ router.post('/notes/user/:userId', async (req, res) => {
         res.status(500).json({ error: "Server error, please try again later.", details: err });
     }
 });
-
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
     console.log("Fetching notes for userId:", userId);
