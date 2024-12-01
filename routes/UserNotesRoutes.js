@@ -112,49 +112,49 @@ router.delete('/users/:userId', async (req, res) => {
 
 router.post('/notes/user/:userId', async (req, res) => {
     const { userId } = req.params;
-    const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
+    const { content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
-    // Validate the required fields
     if (!content) {
         return res.status(400).json({ error: "Content is required" });
     }
 
     try {
-        // Check if user exists before saving the note
         const userExists = await User.findOne({ userId });
         if (!userExists) {
             return res.status(404).json({ error: `User with ID ${userId} not found` });
         }
 
-        // Handle noteId generation or increment
-        let finalNoteId = noteId;
-        if (!noteId || noteId === 0) {
-            const lastNote = await Note.findOne({ userId }).sort({ noteId: -1 });
-            finalNoteId = lastNote && lastNote.noteId ? lastNote.noteId + 1 : 1;
-        }
+        let newNoteId = await generateNewNoteId(userId);
 
-        // Create a new note with provided details
         const newNote = new Note({
-            noteId: finalNoteId,
+            noteId: newNoteId,
             content,
             time: time || new Date().toISOString(),
             isInTrash: isInTrash || false,
             isStarred: isStarred || false,
             isPinned: isPinned || false,
-            fontColor: fontColor || -16777216, // default to black if not specified
+            fontColor: fontColor || -16777216,
             fontSize: fontSize || 20,
             fontWeight: fontWeight || 400,
             userId
         });
 
-        // Save the new note
-        const savedNote = await newNote.save();
-        res.status(201).json(savedNote);
+        await newNote.save();
+        res.status(201).json(newNote);
     } catch (err) {
         console.error("Error processing request for user ID", userId, "with body", req.body, err);
         res.status(500).json({ error: "Server error, please try again later." });
     }
 });
+
+async function generateNewNoteId(userId) {
+    const lastNote = await Note.findOne({ userId }).sort({ noteId: -1 });
+    if (lastNote) {
+        return lastNote.noteId + 1;
+    } else {
+        return 1; // Start with 1 if no notes exist for this user
+    }
+}
 
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
