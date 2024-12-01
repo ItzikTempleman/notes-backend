@@ -109,24 +109,35 @@ router.delete('/users/:userId', async (req, res) => {
 
 //Notes
 router.post('/notes/user/:userId', async (req, res) => {
-    const { noteId } = req.body;
-    const noteExists = await Note.findOne({ noteId });
+    const { noteId, userId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
-    if (noteExists) {
-        return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists." });
-    }
-
-    // Proceed with saving the new note if no conflict
-    const newNote = new Note(req.body);
     try {
+        // Check if noteId already exists for robustness
+        const existingNote = await Note.findOne({ noteId });
+        if (existingNote) {
+            return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists." });
+        }
+
+        const newNote = new Note({
+            noteId,
+            userId,
+            content,
+            time,
+            isInTrash,
+            isStarred,
+            isPinned,
+            fontColor,
+            fontSize,
+            fontWeight
+        });
+
         await newNote.save();
         res.status(201).json(newNote);
-    } catch (err) {
-        console.error("Error saving note:", err);
-        res.status(500).json({ error: "Server error, please try again later." });
+    } catch (error) {
+        console.error('Failed to save the note:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
