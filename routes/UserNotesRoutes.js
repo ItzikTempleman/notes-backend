@@ -112,49 +112,50 @@ router.delete('/users/:userId', async (req, res) => {
 
 router.post('/notes/user/:userId', async (req, res) => {
     const { userId } = req.params;
-    const { content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
+    const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
+    // Check if all required fields are provided, including noteId and content
+    if (!noteId) {
+        return res.status(400).json({ error: "noteId is required" });
+    }
     if (!content) {
         return res.status(400).json({ error: "Content is required" });
     }
 
     try {
+        // Check if the user exists
         const userExists = await User.findOne({ userId });
         if (!userExists) {
             return res.status(404).json({ error: `User with ID ${userId} not found` });
         }
 
-        let newNoteId = await generateNewNoteId(userId);
-
+        // Create a new note using the exact noteId provided by the app
         const newNote = new Note({
-            noteId: newNoteId,
+            noteId,
             content,
             time: time || new Date().toISOString(),
             isInTrash: isInTrash || false,
             isStarred: isStarred || false,
             isPinned: isPinned || false,
-            fontColor: fontColor || -16777216,
+            fontColor: fontColor || -16777216, // default to black if not specified
             fontSize: fontSize || 20,
             fontWeight: fontWeight || 400,
             userId
         });
 
-        await newNote.save();
-        res.status(201).json(newNote);
+        // Save the new note
+        const savedNote = await newNote.save();
+        res.status(201).json(savedNote);
     } catch (err) {
         console.error("Error processing request for user ID", userId, "with body", req.body, err);
-        res.status(500).json({ error: "Server error, please try again later." });
+        if (err.code === 11000) {
+            // Handle duplicate key error
+            res.status(409).json({ error: "Duplicate noteId error. This noteId already exists." });
+        } else {
+            res.status(500).json({ error: "Server error, please try again later." });
+        }
     }
 });
-
-async function generateNewNoteId(userId) {
-    const lastNote = await Note.findOne({ userId }).sort({ noteId: -1 });
-    if (lastNote) {
-        return lastNote.noteId + 1;
-    } else {
-        return 1; // Start with 1 if no notes exist for this user
-    }
-}
 
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
