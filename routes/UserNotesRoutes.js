@@ -112,30 +112,27 @@ router.delete('/users/:userId', async (req, res) => {
 
 router.post('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
-    let { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
+    const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
     if (!content) {
         return res.status(400).json({ error: "Missing required field: content" });
     }
 
     try {
-        // Ensure the user exists
         const userExists = await User.findOne({ userId });
         if (!userExists) {
             return res.status(404).json({ error: `User with ID ${userId} not found.` });
         }
 
-        // If noteId is not provided or is 0, generate a new noteId
         if (!noteId || noteId === 0) {
             const lastNote = await Note.findOne({ userId }).sort({ noteId: -1 });
             noteId = lastNote && lastNote.noteId ? lastNote.noteId + 1 : 1;
         }
 
-        // Create and save the note with only the required fields
         const newNote = new Note({
             noteId,
             content,
-            time: time || new Date().toISOString(), // Use provided time or current time
+            time: time || new Date().toISOString(),
             isInTrash,
             isStarred,
             isPinned,
@@ -149,7 +146,7 @@ router.post('/notes/user/:userId', async (req, res) => {
         res.status(201).json(savedNote);
     } catch (err) {
         console.error("Error saving note:", err);
-        res.status(500).json({ error: "Server error, please try again later." });
+        res.status(500).json({ error: err.message });
     }
 });
 
