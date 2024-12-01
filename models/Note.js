@@ -14,6 +14,5 @@ const NoteSchema = new mongoose.Schema({
     fontWeight: { type: Number, default: 400 },
 });
 
-NoteSchema.index({ userId: 1, noteId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Note', NoteSchema);
