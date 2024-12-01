@@ -109,9 +109,10 @@ router.delete('/users/:userId', async (req, res) => {
 
 //Notes
 
+
 router.post('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
-    let { noteId, content, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
+    let { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
     if (!content) {
         return res.status(400).json({ error: "Missing required field: content" });
@@ -134,6 +135,7 @@ router.post('/notes/user/:userId', async (req, res) => {
         const newNote = new Note({
             noteId,
             content,
+            time: time || new Date().toISOString(), // Use provided time or current time
             isInTrash,
             isStarred,
             isPinned,
@@ -141,7 +143,6 @@ router.post('/notes/user/:userId', async (req, res) => {
             fontSize,
             fontWeight,
             userId,
-            time: new Date().toISOString(),
         });
 
         const savedNote = await newNote.save();
@@ -151,6 +152,7 @@ router.post('/notes/user/:userId', async (req, res) => {
         res.status(500).json({ error: "Server error, please try again later." });
     }
 });
+
 
 
 
