@@ -109,43 +109,31 @@ router.delete('/users/:userId', async (req, res) => {
 
 //Notes
 router.post('/notes/user/:userId', async (req, res) => {
-    const { userId } = req.params;
-    const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
-
+    const { noteId, content } = req.body;
     if (!noteId || typeof noteId !== 'number') {
-        return res.status(400).json({ error: "noteId is required and must be a number." });
+        return res.status(400).json({ error: "noteId must be a valid number." });
     }
     if (!content) {
         return res.status(400).json({ error: "Content is required." });
     }
 
     try {
-        // Check for existing note with the same noteId under the same userId to prevent duplicates
-        const existingNote = await Note.findOne({ userId, noteId });
+        const existingNote = await Note.findOne({ userId: req.params.userId, noteId });
         if (existingNote) {
-            return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
+            return res.status(409).json({ error: "Duplicate noteId error for this user." });
         }
 
-        const newNote = new Note({
-            noteId,
-            userId,
-            content,
-            time: time || new Date().toISOString(),
-            isInTrash,
-            isStarred,
-            isPinned,
-            fontColor,
-            fontSize,
-            fontWeight
-        });
-
-        const savedNote = await newNote.save();
-        res.status(201).json(savedNote);
+        const newNote = new Note(req.body);
+        await newNote.save();
+        res.status(201).json(newNote);
     } catch (err) {
-        console.error("Error saving the note:", err);
-        res.status(500).json({ error: "Server error, please try again later.", details: err });
+        console.error("Error during note creation:", err);
+        res.status(500).json({ error: "Server error, please try again later." });
     }
 });
+
+
+
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
     console.log("Fetching notes for userId:", userId);
