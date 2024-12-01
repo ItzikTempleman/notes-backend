@@ -112,40 +112,46 @@ router.post('/notes/user/:userId', async (req, res) => {
     const { userId } = req.params;
     const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
-    // Check for required fields
-    if (noteId === undefined || typeof noteId !== 'number') {
-        return res.status(400).json({ error: "noteId is required and must be a number." });
+    // Check if all required fields are provided, including noteId and content
+    if (!noteId) {
+        return res.status(400).json({ error: "noteId is required" });
     }
     if (!content) {
-        return res.status(400).json({ error: "Content is required." });
+        return res.status(400).json({ error: "Content is required" });
     }
 
     try {
-        // Check for an existing note with the same noteId and userId
-        const existingNote = await Note.findOne({ userId, noteId });
-        if (existingNote) {
-            return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
+        // Check if the user exists
+        const userExists = await User.findOne({ userId });
+        if (!userExists) {
+            return res.status(404).json({ error: `User with ID ${userId} not found` });
         }
 
-        // Create and save the new note
+        // Create a new note using the exact noteId provided by the app
         const newNote = new Note({
             noteId,
-            userId,
             content,
             time: time || new Date().toISOString(),
-            isInTrash,
-            isStarred,
-            isPinned,
-            fontColor,
-            fontSize,
-            fontWeight
+            isInTrash: isInTrash || false,
+            isStarred: isStarred || false,
+            isPinned: isPinned || false,
+            fontColor: fontColor || -16777216, // default to black if not specified
+            fontSize: fontSize || 20,
+            fontWeight: fontWeight || 400,
+            userId
         });
 
+        // Save the new note
         const savedNote = await newNote.save();
         res.status(201).json(savedNote);
     } catch (err) {
-        console.error("Error processing note post request:", err);
-        res.status(500).json({ error: "Server error, please try again later.", details: err });
+        console.error("Error processing request for user ID", userId, "with body", req.body, err);
+        if (err.code === 11000) {
+            // Handle duplicate key error
+            res.status(409).json({ error: "Duplicate noteId error. This noteId already exists." });
+        } else {
+            res.status(500).json({ error: "Server error, please try again later." });
+        }
     }
 });
 
