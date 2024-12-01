@@ -108,41 +108,49 @@ router.delete('/users/:userId', async (req, res) => {
 );
 
 //Notes
+
 router.post('/notes/user/:userId', async (req, res) => {
     const { userId } = req.params;
     const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
-    if (!noteId) {
-        return res.status(400).json({ error: "noteId is required" });
+
+    if (!noteId || !content) {
+        return res.status(400).json({
+            error: "Both noteId and content are required."
+        });
     }
-    if (!content) {
-        return res.status(400).json({ error: "Content is required" });
-    }
+
     try {
-        const userExists = await User.findOne({ _id: userId });
-        if (!userExists) {
-            return res.status(404).json({ error: `User with ID ${userId} not found` });
-        }
-        const existingNote = await Note.findOne({ noteId, userId });
+        // Check for existing note with the same noteId under the same userId
+        const existingNote = await Note.findOne({ userId, noteId });
         if (existingNote) {
-            return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists." });
+            return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
         }
+
+        // Create a new note
         const newNote = new Note({
-            noteId,
             userId,
+            noteId,
             content,
             time: time || new Date().toISOString(),
-            isInTrash: isInTrash || false,
-            isStarred: isStarred || false,
-            isPinned: isPinned || false,
-            fontColor: fontColor || -16777216,
-            fontSize: fontSize || 20,
-            fontWeight: fontWeight || 400
+            isInTrash,
+            isStarred,
+            isPinned,
+            fontColor,
+            fontSize,
+            fontWeight
         });
+
+        // Save the new note
         const savedNote = await newNote.save();
         res.status(201).json(savedNote);
     } catch (err) {
-        console.error("Failed to save note for user ID", userId, "with noteId", noteId, err);
-        res.status(500).json({ error: "Server error, please try again later.", details: err });
+        console.error("Failed to save note:", err);
+        if (err.code === 11000) {
+            // This now means a truly unexpected duplicate key error
+            res.status(409).json({ error: "Unexpected duplicate key error.", details: err });
+        } else {
+            res.status(500).json({ error: "Server error, please try again later.", details: err });
+        }
     }
 });
 
