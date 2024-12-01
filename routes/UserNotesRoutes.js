@@ -108,54 +108,29 @@ router.delete('/users/:userId', async (req, res) => {
 );
 
 //Notes
-
-
 router.post('/notes/user/:userId', async (req, res) => {
     const { userId } = req.params;
-    const { noteId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
+    const { noteId, content } = req.body;
 
-    // Check if all required fields are provided, including noteId and content
-    if (!noteId) {
-        return res.status(400).json({ error: "noteId is required" });
-    }
-    if (!content) {
-        return res.status(400).json({ error: "Content is required" });
+    if (!noteId || !content) {
+        return res.status(400).json({ error: "Both noteId and content are required." });
     }
 
     try {
-        // Check if the user exists
-        const userExists = await User.findOne({ userId });
-        if (!userExists) {
-            return res.status(404).json({ error: `User with ID ${userId} not found` });
+        const existingNote = await Note.findOne({ userId, noteId });
+        if (existingNote) {
+            return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
         }
 
-        // Create a new note using the exact noteId provided by the app
-        const newNote = new Note({
-            noteId,
-            content,
-            time: time || new Date().toISOString(),
-            isInTrash: isInTrash || false,
-            isStarred: isStarred || false,
-            isPinned: isPinned || false,
-            fontColor: fontColor || -16777216,
-            fontSize: fontSize || 20,
-            fontWeight: fontWeight || 400,
-            userId
-        });
-
-        // Save the new note
+        const newNote = new Note(req.body);
         const savedNote = await newNote.save();
         res.status(201).json(savedNote);
     } catch (err) {
-        console.error("Error processing request for user ID", userId, "with body", req.body, err);
-        if (err.code === 11000) {
-            // Handle duplicate key error
-            res.status(409).json({ error: "Duplicate noteId error. This noteId already exists." });
-        } else {
-            res.status(500).json({ error: "Server error, please try again later." });
-        }
+        res.status(500).json({ error: "Server error, please try again later." });
     }
 });
+
+
 
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
