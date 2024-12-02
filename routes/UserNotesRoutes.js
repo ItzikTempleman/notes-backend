@@ -161,7 +161,6 @@ router.get('/notes/user/:userId', async (req, res) => {
 
 router.delete('/notes/delete-all', async (req, res) => {
     try {
-        // Perform the delete operation
         const result = await Note.deleteMany({});
         res.status(200).json({
             message: "All notes have been deleted successfully",
