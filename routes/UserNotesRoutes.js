@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Note = require('../models/Note');
 const { v4: uuidv4 } = require('uuid');
+
 //Users
 
 router.post('/users', async (req, res) => {
@@ -111,7 +112,6 @@ router.delete('/users/:userId', async (req, res) => {
 router.post('/notes/user/:userId', async (req, res) => {
     const { noteId, userId, content, time, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
 
-    // Create a new note object from the provided data
     const newNote = new Note({
         noteId,
         userId,
@@ -126,11 +126,11 @@ router.post('/notes/user/:userId', async (req, res) => {
     });
 
     try {
-        // Attempt to save the new note
+  
         await newNote.save();
         res.status(201).json(newNote);
     } catch (error) {
-        // Check if the error is due to a duplicate key
+
         if (error.code === 11000) {
             return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
         } else {
