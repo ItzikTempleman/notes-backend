@@ -110,7 +110,7 @@ router.delete('/users/:userId', async (req, res) => {
 
 //Notes
 router.post('/notes/user/:userId', async (req, res) => {
-    const { noteId, userId, content, time,title, isInTrash, isStarred, isPinned, fontColor, fontSize, fontWeight } = req.body;
+    const { noteId, userId, content, time,title, isInTrash, isStarred, isPinned, fontColor,noteImage, fontSize, fontWeight } = req.body;
 
     const newNote = new Note({
         title,
@@ -122,6 +122,7 @@ router.post('/notes/user/:userId', async (req, res) => {
         isStarred,
         isPinned,
         fontColor,
+        noteImage,
         fontSize,
         fontWeight
     });

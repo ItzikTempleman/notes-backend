@@ -12,7 +12,8 @@ const NoteSchema = new mongoose.Schema({
     isPinned: { type: Boolean, default: false },
     fontColor: { type: Int32, default: -16777216 },
     fontSize: { type: Number, default: 20 },
-    fontWeight: { type: Number, default: 400 },
+    noteImage: { type: String, default: '' },
+    fontWeight: { type: Number, default: 400 }
 });
 
 NoteSchema.index({ userId: 1, noteId: 1 }, { unique: true });
