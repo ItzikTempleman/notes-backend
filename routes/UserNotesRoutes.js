@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Note = require('../models/Note');
-const { v4: uuidv4 } = require('uuid');
+const {v4: uuidv4} = require('uuid');
 
 //Users
 
@@ -108,9 +108,39 @@ router.delete('/users/:userId', async (req, res) => {
     }
 );
 
+router.delete('/users/email/:email', async (req, res) => {
+    try {
+
+        const email = req.params.email;
+        const deletedUser = await User.findOneAndDelete({email});
+
+        if (!deletedUser) {
+            return res.status(404).json({error: 'User not found'});
+        }
+        await Note.deleteMany({userId: deletedUser.userId});
+        res.json({message: 'User and associated notes deleted successfully', user: deletedUser});
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+});
+
+
 //Notes
 router.post('/notes/user/:userId', async (req, res) => {
-    const { noteId, userId, content, time,title, isInTrash, isStarred, isPinned, fontColor,noteImage, fontSize, fontWeight } = req.body;
+    const {
+        noteId,
+        userId,
+        content,
+        time,
+        title,
+        isInTrash,
+        isStarred,
+        isPinned,
+        fontColor,
+        noteImage,
+        fontSize,
+        fontWeight
+    } = req.body;
 
     const newNote = new Note({
         title,
@@ -128,16 +158,16 @@ router.post('/notes/user/:userId', async (req, res) => {
     });
 
     try {
-  
+
         await newNote.save();
         res.status(201).json(newNote);
     } catch (error) {
 
         if (error.code === 11000) {
-            return res.status(409).json({ error: "Duplicate noteId error. This noteId already exists for this user." });
+            return res.status(409).json({error: "Duplicate noteId error. This noteId already exists for this user."});
         } else {
             console.error('Failed to save the note:', error);
-            res.status(500).json({ error: 'Internal server error' });
+            res.status(500).json({error: 'Internal server error'});
         }
     }
 });
@@ -147,7 +177,7 @@ router.get('/notes/user/:userId', async (req, res) => {
     console.log("Fetching notes for userId:", userId);
 
     try {
-        const notes = await Note.find({ userId });
+        const notes = await Note.find({userId});
         if (notes.length === 0) {
             console.warn("No notes found for userId:", userId);
         } else {
@@ -156,7 +186,7 @@ router.get('/notes/user/:userId', async (req, res) => {
         res.status(200).json(notes);
     } catch (err) {
         console.error("Error fetching notes for userId:", userId, err.message);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({error: err.message});
     }
 });
 
@@ -170,10 +200,9 @@ router.delete('/notes/delete-all', async (req, res) => {
         });
     } catch (error) {
         console.error('Error deleting notes:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({error: 'Internal server error'});
     }
 });
-
 
 
 module.exports = router;
