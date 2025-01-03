@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const userNoteRoutes = require('./routes/UserNotesRoutes');
-
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -16,8 +16,9 @@ mongoose.connect(mongoUri)
 
 app.use(express.json());
 
-app.use('/api', userNoteRoutes);
+app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api', userNoteRoutes);
 
 app.get('/', (req, res) => {
     res.send('Welcome to Itzik API');
