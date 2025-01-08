@@ -5,7 +5,6 @@ const Note = require('../models/Note');
 const {v4: uuidv4} = require('uuid');
 
 //Users
-
 router.post('/users', async (req, res) => {
     try {
         const newUser = new User(req.body);
@@ -29,10 +28,7 @@ router.get('/users', async (req, res) => {
 
 router.get('/users/:userId', async (req, res) => {
         try {
-            const user = await User.findOne(
-                {
-                    userId: req.params.userId
-                });
+            const user = await User.findOne({userId: req.params.userId});
             if (!user) {
                 return res.status(404).json({error: 'User not found'});
             }
@@ -73,7 +69,6 @@ router.put('/update', async (req, res) => {
         if (Object.keys(updateFields).length === 0) {
             return res.status(400).json({error: 'At least one field (email, phoneNumber, profileImage) must be provided to update'});
         }
-
         const updatedUser = await User.findOneAndUpdate(
             {userId},
             {$set: updateFields},
@@ -124,7 +119,6 @@ router.delete('/users/email/:email', async (req, res) => {
     }
 });
 
-
 //Notes
 router.post('/notes/user/:userId', async (req, res) => {
     const {
@@ -141,7 +135,6 @@ router.post('/notes/user/:userId', async (req, res) => {
         fontSize,
         fontWeight
     } = req.body;
-
     const newNote = new Note({
         title,
         noteId,
@@ -156,13 +149,10 @@ router.post('/notes/user/:userId', async (req, res) => {
         fontSize,
         fontWeight
     });
-
     try {
-
         await newNote.save();
         res.status(201).json(newNote);
     } catch (error) {
-
         if (error.code === 11000) {
             return res.status(409).json({error: "Duplicate noteId error. This noteId already exists for this user."});
         } else {
@@ -172,10 +162,10 @@ router.post('/notes/user/:userId', async (req, res) => {
     }
 });
 
+
 router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
     console.log("Fetching notes for userId:", userId);
-
     try {
         const notes = await Note.find({userId});
         if (notes.length === 0) {
@@ -191,6 +181,53 @@ router.get('/notes/user/:userId', async (req, res) => {
 });
 
 
+router.put('/notes/:noteId', async (req, res) => {
+    try {
+        const {noteId} = req.params
+        const {title, content, time, isInTrash, isStarred, isPinned, fontColor, noteImage, fontSize, fontWeight} = req.body
+        const fieldsToUpdate = {}
+        if (title !== undefined) fieldsToUpdate.title = title
+        if (content !== undefined) fieldsToUpdate.content = content
+        if (time !== undefined) fieldsToUpdate.time = time
+        if (isInTrash !== undefined) fieldsToUpdate.isInTrash = isInTrash
+        if (isStarred !== undefined) fieldsToUpdate.isStarred = isStarred
+        if (isPinned !== undefined) fieldsToUpdate.isPinned = isPinned
+        if (fontColor !== undefined) fieldsToUpdate.fontColor = fontColor
+        if (noteImage !== undefined) fieldsToUpdate.noteImage = noteImage
+        if (fontSize !== undefined) fieldsToUpdate.fontSize = fontSize
+        if (fontWeight !== undefined) fieldsToUpdate.fontWeight = fontWeight
+        if (Object.keys(fieldsToUpdate).length === 0) {return res.status(400).json({error: "No valid fields provided to update"})}
+        const updatedNote = await Note.findOneAndUpdate({noteId}, {$set: fieldsToUpdate}, {new: true})
+        if (!updatedNote) {return res.status(404).json({error: 'Note not found'})}
+        return res.status(200).json({message: 'Note updated successfully', note: updatedNote})
+    }
+    catch (err) {
+        console.error('Error updating note:', err)
+        return res.status(500).json({
+            error: 'Internal server error'
+        })
+    }
+})
+
+
+router.delete('/notes/:noteId', async (req, res) => {
+    try {
+        const noteId = req.params.noteId;
+        const deletedNote = await Note.findOneAndDelete({noteId});
+
+        if (!deletedNote) {
+            return res.status(404).json({error: 'Note not found'});
+        }
+        return res.status(200).json({
+            message: 'Note deleted successfully',
+            note: deletedNote,
+        });
+    } catch (err) {
+        console.error('Error deleting note:', err);
+        return res.status(500).json({error: 'Internal server error'});
+    }
+});
+
 router.delete('/notes/delete-all', async (req, res) => {
     try {
         const result = await Note.deleteMany({});
@@ -203,6 +240,5 @@ router.delete('/notes/delete-all', async (req, res) => {
         res.status(500).json({error: 'Internal server error'});
     }
 });
-
 
 module.exports = router;
