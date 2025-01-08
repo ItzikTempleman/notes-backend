@@ -124,7 +124,7 @@ router.delete('/users/email/:email', async (req, res) => {
 router.put('/users/:usersId', async (req, res) => {
     try {
         const {userId} = req.params
-        const {userName, email, password, phoneNumber, profileImage, dateOfBirth} = req.body
+        const {userName, email, password, phoneNumber, profileImage, dateOfBirth,selectedWallpaper} = req.body
 
         const fieldsToUpdate = {}
         if (userName !== undefined) fieldsToUpdate.userName = userName
@@ -133,13 +133,12 @@ router.put('/users/:usersId', async (req, res) => {
         if (phoneNumber !== undefined) fieldsToUpdate.phoneNumber = phoneNumber
         if (profileImage !== undefined) fieldsToUpdate.profileImage = profileImage
         if (dateOfBirth !== undefined) fieldsToUpdate.dateOfBirth = dateOfBirth
+        if (selectedWallpaper !== undefined) fieldsToUpdate.selectedWallpaper = selectedWallpaper
 
         if (Object.keys(fieldsToUpdate).length === 0) {return res.status(400).json({error: "No valid fields provided to update"})}
 
         const updatedUser = await Note.findOneAndUpdate({userId}, {$set: fieldsToUpdate}, {new: true})
         if (!updatedUser) {return res.status(404).json({error: 'User not found'})}
-
-
 
         return res.status(200).json({message: 'User updated successfully', note: updatedUser})
     }
