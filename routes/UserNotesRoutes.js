@@ -119,6 +119,40 @@ router.delete('/users/email/:email', async (req, res) => {
     }
 });
 
+
+
+router.put('/users/:usersId', async (req, res) => {
+    try {
+        const {userId} = req.params
+        const {userName, email, password, phoneNumber, profileImage, dateOfBirth} = req.body
+
+        const fieldsToUpdate = {}
+        if (userName !== undefined) fieldsToUpdate.userName = userName
+        if (email !== undefined) fieldsToUpdate.email = email
+        if (password !== undefined) fieldsToUpdate.password = password
+        if (phoneNumber !== undefined) fieldsToUpdate.phoneNumber = phoneNumber
+        if (profileImage !== undefined) fieldsToUpdate.profileImage = profileImage
+        if (dateOfBirth !== undefined) fieldsToUpdate.dateOfBirth = dateOfBirth
+
+        if (Object.keys(fieldsToUpdate).length === 0) {return res.status(400).json({error: "No valid fields provided to update"})}
+
+        const updatedUser = await Note.findOneAndUpdate({userId}, {$set: fieldsToUpdate}, {new: true})
+        if (!updatedUser) {return res.status(404).json({error: 'User not found'})}
+
+
+
+        return res.status(200).json({message: 'User updated successfully', note: updatedUser})
+    }
+    catch (err) {
+        console.error('Error updating user:', err)
+        return res.status(500).json({
+            error: 'Internal server error'
+        })
+    }
+})
+
+
+
 //Notes
 router.post('/notes/user/:userId', async (req, res) => {
     const {
