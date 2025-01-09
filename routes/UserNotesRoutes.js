@@ -259,33 +259,17 @@ router.delete('/notes/:noteId', async (req, res) => {
     }
 });
 
-
-router.delete('/notes/delete-all', async (req, res) => {
+router.delete('/notes/delete-all-notes', async (req, res) => {
     try {
-        let totalDeleted = 0;
-        let docsToDelete = true;
-        while (docsToDelete) {
-            const docs = await Note.find({}).limit(100).select('_id');  // Fetch document IDs
-            if (docs.length === 0) {
-                docsToDelete = false;
-            } else {
-                const ids = docs.map(doc => doc._id);
-                const deletionResult = await Note.deleteMany({ _id: { $in: ids } });
-                totalDeleted += deletionResult.deletedCount;
-            }
-        }
+        const result = await Note.deleteMany({});
         res.status(200).json({
             message: "All notes have been deleted successfully",
-            deletedCount: totalDeleted
+            deletedCount: result.deletedCount
         });
     } catch (error) {
         console.error('Error deleting notes:', error);
-        res.status(500).json({
-            error: 'Internal server error',
-            details: error.message
-        });
+        res.status(500).json({error: 'Internal server error'});
     }
 });
-
 
 module.exports = router;
