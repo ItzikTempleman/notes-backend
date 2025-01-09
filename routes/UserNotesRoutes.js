@@ -259,12 +259,14 @@ router.delete('/notes/:noteId', async (req, res) => {
     }
 });
 
+
 router.delete('/notes/delete-all-notes', async (req, res) => {
     try {
         const result = await Note.deleteMany({});
         res.status(200).json({
             message: "All notes have been deleted successfully",
-            deletedCount: result.deletedCount
+            deletedCount: result.deletedCount,
+
         });
     } catch (error) {
         console.error('Detailed Error: ', error);
