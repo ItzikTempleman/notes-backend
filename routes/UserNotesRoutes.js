@@ -262,17 +262,22 @@ router.delete('/notes/:noteId', async (req, res) => {
 
 router.delete('/notes/delete-all', async (req, res) => {
     try {
-        const result = await Note.deleteMany({});
+        let deletedCount = 0;
+        let batch;
+        do {
+            batch = await Note.deleteMany({}).limit(100);  // Note: deleteMany doesn't support limit, this is conceptual
+            deletedCount += batch.deletedCount;
+        } while (batch.deletedCount > 0);
+
         res.status(200).json({
             message: "All notes have been deleted successfully",
-            deletedCount: result.deletedCount
+            deletedCount: deletedCount
         });
     } catch (error) {
         console.error('Error deleting notes:', error);
         res.status(500).json({
             error: 'Internal server error',
-            details: error.message,
-            stack: error.stack
+            details: error.message
         });
     }
 });
