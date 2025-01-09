@@ -259,6 +259,7 @@ router.delete('/notes/:noteId', async (req, res) => {
     }
 });
 
+
 router.delete('/notes/delete-all', async (req, res) => {
     try {
         const result = await Note.deleteMany({});
@@ -271,5 +272,6 @@ router.delete('/notes/delete-all', async (req, res) => {
         res.status(500).json({error: 'Internal server error'});
     }
 });
+
 
 module.exports = router;
