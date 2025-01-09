@@ -269,7 +269,11 @@ router.delete('/notes/delete-all', async (req, res) => {
         });
     } catch (error) {
         console.error('Error deleting notes:', error);
-        res.status(500).json({error: 'Internal server error', details: error.toString()});
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message,
+            stack: error.stack
+        });
     }
 });
 
