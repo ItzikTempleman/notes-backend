@@ -151,7 +151,7 @@ router.put('/users/:usersId', async (req, res) => {
 
 
 //Notes
-router.post('/user/:userId', async (req, res) => {
+router.post('/notes/user/:userId', async (req, res) => {
     const {
         noteId,
         userId,
@@ -194,7 +194,7 @@ router.post('/user/:userId', async (req, res) => {
 });
 
 
-router.get('/user/:userId', async (req, res) => {
+router.get('/notes/user/:userId', async (req, res) => {
     const userId = req.params.userId.trim();
     console.log("Fetching notes for userId:", userId);
     try {
@@ -212,7 +212,7 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 
-router.put('/:noteId', async (req, res) => {
+router.put('/notes/:noteId', async (req, res) => {
     try {
         const {noteId} = req.params
         const {title, content, time, isInTrash, isStarred, isPinned, fontColor, noteImage, fontSize, fontWeight} = req.body
@@ -241,7 +241,7 @@ router.put('/:noteId', async (req, res) => {
 })
 
 
-router.delete('/:noteId', async (req, res) => {
+router.delete('/notes/:noteId', async (req, res) => {
     try {
         const noteId = req.params.noteId;
         if(isNaN(noteId)){
@@ -250,7 +250,7 @@ router.delete('/:noteId', async (req, res) => {
         const deletedNote = await Note.findOneAndDelete({noteId});
 
         if (!deletedNote) {
-            return res.status(404).json({error: `Note '${noteId}' not found`});
+            return res.status(404).json({error: `Note ${noteId} not found`});
         }
         return res.status(200).json({
             message: 'Note deleted successfully',
@@ -263,7 +263,7 @@ router.delete('/:noteId', async (req, res) => {
 });
 
 
-router.delete('/', async (req, res) => {
+router.delete('/delete-all-notes', async (req, res) => {
     try {
         const result = await Note.deleteMany({});
         res.status(200).json({
