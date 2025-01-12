@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Use your API routes
-app.use('/api', userNoteRoutes);
+app.use('/api/notes', userNoteRoutes);
 
 // Optional: Serve the HTML file for the root route or others if needed
 app.get('/', (req, res) => {
