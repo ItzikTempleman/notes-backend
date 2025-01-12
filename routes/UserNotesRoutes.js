@@ -245,9 +245,11 @@ router.delete('/notes/:noteId', async (req, res) => {
     try {
         const noteId = req.params.noteId;
         const deletedNote = await Note.findOneAndDelete({noteId});
-
+        if(isNaN(noteId)){
+            return res.status(400).json({error: `noteId: '${noteId}' is not valid`})
+        }
         if (!deletedNote) {
-            return res.status(404).json({error: 'Note not found'});
+            return res.status(404).json({error: `Note ${noteId} not found`});
         }
         return res.status(200).json({
             message: 'Note deleted successfully',
