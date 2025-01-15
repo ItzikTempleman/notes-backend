@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const userNoteRoutes = require('./routes/UserNotesRoutes');
-const jwt = require('jsonwebtoken');
 const path = require('path'); // Import the path module
 
 require('dotenv').config();
