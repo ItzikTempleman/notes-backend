@@ -135,7 +135,7 @@ router.put('/user/:usersId', async (req, res) => {
 
         if (Object.keys(fieldsToUpdate).length === 0) {return res.status(400).json({error: "No valid fields provided to update"})}
 
-        const updatedUser = await Note.findOneAndUpdate({userId}, {$set: fieldsToUpdate}, {new: true})
+        const updatedUser = await User.findOneAndUpdate({userId}, {$set: fieldsToUpdate}, {new: true})
         if (!updatedUser) {return res.status(404).json({error: 'User not found'})}
 
         return res.status(200).json({message: 'User updated successfully', note: updatedUser})
