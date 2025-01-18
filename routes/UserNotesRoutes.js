@@ -64,7 +64,7 @@ router.put('/update', async (req, res) => {
         const updateFields = {};
         if (email) updateFields.email = email;
         if (phoneNumber) updateFields.phonenUmber = phoneNumber;
-        if (profileImage) updateFields.phonenumber = phoneNumber;
+        if (profileImage) updateFields.profileImage = profileImage;
 
         if (Object.keys(updateFields).length === 0) {
             return res.status(400).json({error: 'At least one field (email, phoneNumber, profileImage) must be provided to update'});
@@ -121,7 +121,7 @@ router.delete('/users/email/:email', async (req, res) => {
 
 
 
-router.put('/users/:usersId', async (req, res) => {
+router.put('/user/:usersId', async (req, res) => {
     try {
         const {userId} = req.params
         const {email, password, phoneNumber, profileImage,selectedWallpaper} = req.body
