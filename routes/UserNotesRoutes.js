@@ -72,7 +72,7 @@ router.put('/user/:userId', async (req, res) => {
         }
 
         const updatedUser = await User.findOneAndUpdate(
-            { userId }, // Query by userId
+            { userId }, 
             { $set: fieldsToUpdate },
             { new: true }
         );
@@ -125,38 +125,6 @@ router.delete('/users/email/:email', async (req, res) => {
 
 
 
-router.put('/user/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { email, password, phoneNumber, profileImage, selectedWallpaper } = req.body;
-
-        const fieldsToUpdate = {};
-        if (email !== undefined) fieldsToUpdate.email = email;
-        if (password !== undefined) fieldsToUpdate.password = password;
-        if (phoneNumber !== undefined) fieldsToUpdate.phoneNumber = phoneNumber;
-        if (profileImage !== undefined) fieldsToUpdate.profileImage = profileImage;
-        if (selectedWallpaper !== undefined) fieldsToUpdate.selectedWallpaper = selectedWallpaper;
-
-        if (Object.keys(fieldsToUpdate).length === 0) {
-            return res.status(400).json({ error: "No valid fields provided to update" });
-        }
-
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { $set: fieldsToUpdate },
-            { new: true }
-        );
-
-        if (!updatedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        return res.status(200).json({ message: 'User updated successfully', user: updatedUser });
-    } catch (err) {
-        console.error('Error updating user:', err);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-});
 
 
 
