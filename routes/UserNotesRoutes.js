@@ -123,7 +123,7 @@ router.delete('/users/email/:email', async (req, res) => {
 
 router.put('/user/:userId', async (req, res) => {
     try {
-        const { userId } = req.params; // Correct extraction
+        const { userId } = req.params;
         const { email, password, phoneNumber, profileImage, selectedWallpaper } = req.body;
 
         const fieldsToUpdate = {};
@@ -137,8 +137,8 @@ router.put('/user/:userId', async (req, res) => {
             return res.status(400).json({ error: "No valid fields provided to update" });
         }
 
-        const updatedUser = await User.findOneAndUpdate(
-            { userId },
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
             { $set: fieldsToUpdate },
             { new: true }
         );
