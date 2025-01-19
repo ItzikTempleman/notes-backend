@@ -66,19 +66,21 @@ router.put('/update', async (req, res) => {
         if (phoneNumber) updateFields.phoneNumber = phoneNumber;
         if (profileImage) updateFields.profileImage = profileImage;
 
-        if (Object.keys(updateFields).length === 0) {
-            return res.status(400).json({error: 'At least one field (email, phoneNumber, profileImage) must be provided to update'});
-        }
-        const updatedUser = await User.findOneAndUpdate(
-            {userId},
-            {$set: updateFields},
-            {new: true}
-        );
-        if (!updatedUser) {
-            return res.status(400).json({error: 'User not found'})
+        if (Object.keys(fieldsToUpdate).length === 0) {
+            return res.status(400).json({ error: "No valid fields provided to update" });
         }
 
-        res.json({
+        const updatedUser = await User.findOneAndUpdate(
+            { userId }, // Query by userId
+            { $set: fieldsToUpdate },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        return  res.json({
             message: 'User updated successfully',
             user: updatedUser
         });
