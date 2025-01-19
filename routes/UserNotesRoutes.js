@@ -63,7 +63,7 @@ router.put('/update', async (req, res) => {
     try {
         const updateFields = {};
         if (email) updateFields.email = email;
-        if (phoneNumber) updateFields.phonenUmber = phoneNumber;
+        if (phoneNumber) updateFields.phoneNumber = phoneNumber;
         if (profileImage) updateFields.profileImage = profileImage;
 
         if (Object.keys(updateFields).length === 0) {
