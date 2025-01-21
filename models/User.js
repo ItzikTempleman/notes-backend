@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     isLoggedIn: { type: Boolean, default: false },
     phoneNumber: { type: String },
     profileImage: { type: String, default: '' },
-    gender: { type: String, enum: ['MALE', 'FEMALE', 'OTHER'], required: true },
+    gender: { type: String, enum: ['SELECT_GENDER','MALE', 'FEMALE', 'OTHER'], required: true },
     dateOfBirth: { type: String },
     isViewGrid: { type: Boolean, default: false },
     selectedWallpaper: { type: String, default: '' }
