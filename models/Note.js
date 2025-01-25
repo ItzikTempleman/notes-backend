@@ -4,7 +4,7 @@ const Int32 = require('mongoose-int32').loadType(mongoose);
 const NoteSchema = new mongoose.Schema({
     noteId: { type: Number, required: true },
     userId: { type: String, required: true },
-    content: { type: String, required: true },
+    content: { type: String },
     title: { type: String, required: true },
     time: { type: String, default: () => new Date().toISOString() },
     isInTrash: { type: Boolean, default: false },
