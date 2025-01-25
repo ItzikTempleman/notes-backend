@@ -10,7 +10,7 @@ const NoteSchema = new mongoose.Schema({
     isInTrash: { type: Boolean, default: false },
     isStarred: { type: Boolean, default: false },
     isPinned: { type: Boolean, default: false },
-    fontColor: { type: Int32, default: false },
+    fontColor: { type: Int32, default: 0 },
     fontSize: { type: Number, default: 20 },
     noteImage: { type: String, default: '' },
     fontWeight: { type: Number, default: 400 }
