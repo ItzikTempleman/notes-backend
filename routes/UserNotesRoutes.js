@@ -191,25 +191,47 @@ router.get('/notes/user/:userId', async (req, res) => {
 
 router.put('/notes/:noteId', async (req, res) => {
     try {
-        const {noteId} = req.params
-        const {title, content, time, isInTrash, isStarred, isPinned, fontColor, noteImage, fontSize, fontWeight} = req.body
-        const fieldsToUpdate = {}
-        if (title !== undefined) fieldsToUpdate.title = title
-        if (content !== undefined) fieldsToUpdate.content = content
-        if (time !== undefined) fieldsToUpdate.time = time
-        if (isInTrash !== undefined) fieldsToUpdate.isInTrash = isInTrash
-        if (isStarred !== undefined) fieldsToUpdate.isStarred = isStarred
-        if (isPinned !== undefined) fieldsToUpdate.isPinned = isPinned
-        if (fontColor !== undefined) fieldsToUpdate.fontColor = fontColor
-        if (noteImage !== undefined) fieldsToUpdate.noteImage = noteImage
-        if (fontSize !== undefined) fieldsToUpdate.fontSize = fontSize
-        if (fontWeight !== undefined) fieldsToUpdate.fontWeight = fontWeight
+        // We keep noteId from the URL as-is.
+        const noteId = req.params.noteId;
 
+        // Expect the userId to be passed in the body.
+        const {
+            userId,  // <--- NEW: used to disambiguate the query
+            title,
+            content,
+            time,
+            isInTrash,
+            isStarred,
+            isPinned,
+            fontColor,
+            noteImage,
+            fontSize,
+            fontWeight
+        } = req.body;
 
-        if (Object.keys(fieldsToUpdate).length === 0) {return res.status(400).json({error: "No valid fields provided to update"})}
+        if (!userId) {
+            return res.status(400).json({ error: 'userId is required in the request body' });
+        }
 
+        const fieldsToUpdate = {};
+        if (title !== undefined) fieldsToUpdate.title = title;
+        if (content !== undefined) fieldsToUpdate.content = content;
+        if (time !== undefined) fieldsToUpdate.time = time;
+        if (isInTrash !== undefined) fieldsToUpdate.isInTrash = isInTrash;
+        if (isStarred !== undefined) fieldsToUpdate.isStarred = isStarred;
+        if (isPinned !== undefined) fieldsToUpdate.isPinned = isPinned;
+        if (fontColor !== undefined) fieldsToUpdate.fontColor = fontColor;
+        if (noteImage !== undefined) fieldsToUpdate.noteImage = noteImage;
+        if (fontSize !== undefined) fieldsToUpdate.fontSize = fontSize;
+        if (fontWeight !== undefined) fieldsToUpdate.fontWeight = fontWeight;
+
+        if (Object.keys(fieldsToUpdate).length === 0) {
+            return res.status(400).json({ error: "No valid fields provided to update" });
+        }
+
+        // Query using both noteId and userId ensures that only the correct note is updated.
         const updatedNote = await Note.findOneAndUpdate(
-            { noteId },
+            { noteId, userId },
             { $set: fieldsToUpdate },
             { new: true }
         );
@@ -218,12 +240,12 @@ router.put('/notes/:noteId', async (req, res) => {
             return res.status(404).json({ error: 'Note not found' });
         }
 
-        return res.status(200).json({message: 'Note updated successfully', note: updatedNote})
+        return res.status(200).json({ message: 'Note updated successfully', note: updatedNote });
     } catch (err) {
         console.error('Error updating note:', err);
         res.status(500).json({
             error: 'Internal server error',
-            details: err.message // Include error details
+            details: err.message
         });
     }
 });
