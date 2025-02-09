@@ -57,8 +57,8 @@ router.get('/authenticate', async (req, res) => {
 
 router.put('/user/:userId', async (req, res) => {
     try {
-        const { userId } = req.params;
-        const { email, password, phoneNumber, profileImage, selectedWallpaper } = req.body;
+        const {userId} = req.params;
+        const {email, password, phoneNumber, profileImage, selectedWallpaper} = req.body;
 
         const fieldsToUpdate = {};
         if (email !== undefined) fieldsToUpdate.email = email;
@@ -68,20 +68,20 @@ router.put('/user/:userId', async (req, res) => {
         if (selectedWallpaper !== undefined) fieldsToUpdate.selectedWallpaper = selectedWallpaper;
 
         if (Object.keys(fieldsToUpdate).length === 0) {
-            return res.status(400).json({ error: "No valid fields provided to update" });
+            return res.status(400).json({error: "No valid fields provided to update"});
         }
 
         const updatedUser = await User.findOneAndUpdate(
-            { userId },
-            { $set: fieldsToUpdate },
-            { new: true }
+            {userId},
+            {$set: fieldsToUpdate},
+            {new: true}
         );
 
         if (!updatedUser) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({error: 'User not found'});
         }
 
-        return res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+        return res.status(200).json({message: 'User updated successfully', user: updatedUser});
     } catch (err) {
         console.error('Error updating user:', err);
         res.status(500).json({
@@ -122,10 +122,6 @@ router.delete('/users/email/:email', async (req, res) => {
         res.status(500).json({error: err.message});
     }
 });
-
-
-
-
 
 
 //Notes
@@ -198,7 +194,7 @@ router.put('/notes/:noteId', async (req, res) => {
         } = req.body;
 
         if (!userId) {
-            return res.status(400).json({ error: 'userId is required in the request body' });
+            return res.status(400).json({error: 'userId is required in the request body'});
         }
 
         const fieldsToUpdate = {};
@@ -214,24 +210,24 @@ router.put('/notes/:noteId', async (req, res) => {
         if (fontWeight !== undefined) fieldsToUpdate.fontWeight = fontWeight;
 
         if (Object.keys(fieldsToUpdate).length === 0) {
-            return res.status(400).json({ error: "No valid fields provided to update" });
+            return res.status(400).json({error: "No valid fields provided to update"});
         }
 
         // Use both noteId and userId in the query.
         const updatedNote = await Note.findOneAndUpdate(
-            { noteId, userId },
-            { $set: fieldsToUpdate },
-            { new: true }
+            {noteId, userId},
+            {$set: fieldsToUpdate},
+            {new: true}
         );
 
         if (!updatedNote) {
-            return res.status(404).json({ error: 'Note not found' });
+            return res.status(404).json({error: 'Note not found'});
         }
 
-        return res.status(200).json({ message: 'Note updated successfully', note: updatedNote });
+        return res.status(200).json({message: 'Note updated successfully', note: updatedNote});
     } catch (err) {
         console.error('Error updating note:', err);
-        res.status(500).json({ error: 'Internal server error', details: err.message });
+        res.status(500).json({error: 'Internal server error', details: err.message});
     }
 });
 
@@ -239,7 +235,7 @@ router.delete('/notes/:noteId', async (req, res) => {
     try {
         const noteId = req.params.noteId;
         const deletedNote = await Note.findOneAndDelete({noteId});
-        if(isNaN(noteId)){
+        if (isNaN(noteId)) {
             return res.status(400).json({error: `noteId: '${noteId}' is not valid`})
         }
         if (!deletedNote) {
@@ -252,6 +248,22 @@ router.delete('/notes/:noteId', async (req, res) => {
     } catch (err) {
         console.error('Error deleting note:', err);
         return res.status(500).json({error: 'Internal server error'});
+    }
+});
+
+router.delete('/notes/trash/:userId', async (req, res) => {
+    try {
+        const {userId} = req.params;
+        const result = await Note.deleteMany({userId, isInTrash: true});
+        res.status(200).json({
+            message: "All trashed notes for this user have been deleted successfully",
+            deletedCount: result.deletedCount,
+        });
+    } catch (error) {
+        console.error('Error deleting trashed notes:', error);
+        res.status(500).json({
+            error: 'Internal server error', details: error.message, stack: error.stack
+        });
     }
 });
 
