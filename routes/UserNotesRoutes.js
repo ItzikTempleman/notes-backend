@@ -196,9 +196,11 @@ router.put('/notes/:noteId', async (req, res) => {
             userId, title, content, time, isInTrash, isStarred, isPinned,
             fontColor, noteImage, fontSize, fontWeight
         } = req.body;
+
         if (!userId) {
             return res.status(400).json({ error: 'userId is required in the request body' });
         }
+
         const fieldsToUpdate = {};
         if (title !== undefined) fieldsToUpdate.title = title;
         if (content !== undefined) fieldsToUpdate.content = content;
@@ -214,21 +216,24 @@ router.put('/notes/:noteId', async (req, res) => {
         if (Object.keys(fieldsToUpdate).length === 0) {
             return res.status(400).json({ error: "No valid fields provided to update" });
         }
+
+        // Use both noteId and userId in the query.
         const updatedNote = await Note.findOneAndUpdate(
             { noteId, userId },
             { $set: fieldsToUpdate },
             { new: true }
         );
+
         if (!updatedNote) {
             return res.status(404).json({ error: 'Note not found' });
         }
+
         return res.status(200).json({ message: 'Note updated successfully', note: updatedNote });
     } catch (err) {
         console.error('Error updating note:', err);
         res.status(500).json({ error: 'Internal server error', details: err.message });
     }
 });
-
 
 router.delete('/notes/:noteId', async (req, res) => {
     try {
