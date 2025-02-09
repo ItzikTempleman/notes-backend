@@ -16,6 +16,13 @@ const NoteSchema = new mongoose.Schema({
     fontWeight: { type: Number, default: 400 }
 });
 
+NoteSchema.set('toJSON', {
+    transform: function (doc, ret) {
+        ret.fontColor = Number(ret.fontColor);
+        return ret;
+    }
+});
+
 NoteSchema.index({ userId: 1, noteId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Note', NoteSchema);
