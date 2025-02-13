@@ -58,7 +58,7 @@ router.get('/authenticate', async (req, res) => {
 router.put('/user/:userId', async (req, res) => {
     try {
         const {userId} = req.params;
-        const {email, password, phoneNumber, profileImage, selectedWallpaper} = req.body;
+        const {email, password, phoneNumber, profileImage, selectedWallpaper, isViewGrid} = req.body;
 
         const fieldsToUpdate = {};
         if (email !== undefined) fieldsToUpdate.email = email;
@@ -66,10 +66,11 @@ router.put('/user/:userId', async (req, res) => {
         if (phoneNumber !== undefined) fieldsToUpdate.phoneNumber = phoneNumber;
         if (profileImage !== undefined) fieldsToUpdate.profileImage = profileImage;
         if (selectedWallpaper !== undefined) fieldsToUpdate.selectedWallpaper = selectedWallpaper;
-
-        if (Object.keys(fieldsToUpdate).length === 0) {
-            return res.status(400).json({error: "No valid fields provided to update"});
-        }
+        if (isViewGrid !== undefined) fieldsToUpdate.isViewGrid=isViewGrid;
+        
+            if (Object.keys(fieldsToUpdate).length === 0) {
+                return res.status(400).json({error: "No valid fields provided to update"});
+            }
 
         const updatedUser = await User.findOneAndUpdate(
             {userId},
