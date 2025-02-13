@@ -67,7 +67,7 @@ router.put('/user/:userId', async (req, res) => {
         if (profileImage !== undefined) fieldsToUpdate.profileImage = profileImage;
         if (selectedWallpaper !== undefined) fieldsToUpdate.selectedWallpaper = selectedWallpaper;
         if (isViewGrid !== undefined) fieldsToUpdate.isViewGrid=isViewGrid;
-        
+
             if (Object.keys(fieldsToUpdate).length === 0) {
                 return res.status(400).json({error: "No valid fields provided to update"});
             }
