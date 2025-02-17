@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const userNoteRoutes = require('./routes/UserNotesRoutes');
+const userNoteTaskRoutes = require('./routes/UserNotesTasksRoutes');
 const path = require('path'); // Import the path module
 
 require('dotenv').config();
@@ -21,11 +21,11 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Use your API routes
-app.use('/api', userNoteRoutes);
+app.use('/api', userNoteTaskRoutes);
 
 // Optional: Serve the HTML file for the root route or others if needed
 app.get('/', (req, res) => {
-    res.send('Welcome to Itzik API');
+    res.send('Users-notes-tasks backend');
 });
 
 // Start the server

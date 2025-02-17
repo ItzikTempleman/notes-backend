@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Note = require('../models/Note');
+const Task = require('../models/Task');
 const {v4: uuidv4} = require('uuid');
 
 //Users
@@ -286,5 +287,7 @@ router.delete('/delete-all-notes', async (req, res) => {
         });
     }
 });
+
+//Tasks
 
 module.exports = router;
