@@ -335,4 +335,42 @@ router.get('/tasks/user/:userId', async (req, res) => {
     }
 });
 
+
+router.put('/tasks/:taskId', async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const {
+            userId, taskTitle, taskContent, isDone
+        } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({error: 'userId is required in the request body'});
+        }
+
+        const fieldsToUpdate = {};
+        if (taskTitle !== undefined) fieldsToUpdate.taskTitle = taskTitle;
+        if (taskContent !== undefined) fieldsToUpdate.taskContent = taskContent;
+        if (isDone !== undefined) fieldsToUpdate.isDone = isDone;
+
+        if (Object.keys(fieldsToUpdate).length === 0) {
+            return res.status(400).json({error: "No valid fields provided to update"});
+        }
+
+        const updatedTask = await Task.findOneAndUpdate(
+            {taskId, userId},
+            {$set: fieldsToUpdate},
+            {new: true}
+        );
+
+        if (!updatedTask) {
+            return res.status(404).json({error: 'Task not found'});
+        }
+
+        return res.status(200).json({message: 'Task updated successfully', task: updatedTask});
+    } catch (err) {
+        console.error('Error updating task:', err);
+        res.status(500).json({error: 'Internal server error', details: err.message});
+    }
+});
+
 module.exports = router;
