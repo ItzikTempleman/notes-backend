@@ -67,11 +67,11 @@ router.put('/user/:userId', async (req, res) => {
         if (phoneNumber !== undefined) fieldsToUpdate.phoneNumber = phoneNumber;
         if (profileImage !== undefined) fieldsToUpdate.profileImage = profileImage;
         if (selectedWallpaper !== undefined) fieldsToUpdate.selectedWallpaper = selectedWallpaper;
-        if (isViewGrid !== undefined) fieldsToUpdate.isViewGrid=isViewGrid;
+        if (isViewGrid !== undefined) fieldsToUpdate.isViewGrid = isViewGrid;
 
-            if (Object.keys(fieldsToUpdate).length === 0) {
-                return res.status(400).json({error: "No valid fields provided to update"});
-            }
+        if (Object.keys(fieldsToUpdate).length === 0) {
+            return res.status(400).json({error: "No valid fields provided to update"});
+        }
 
         const updatedUser = await User.findOneAndUpdate(
             {userId},
@@ -289,5 +289,50 @@ router.delete('/delete-all-notes', async (req, res) => {
 });
 
 //Tasks
+router.post('/tasks/user/:userId', async (req, res) => {
+    const {
+        taskId,
+        isDone,
+        taskTitle,
+        taskContent,
+        userId
+    } = req.body;
+    const newTask = new Task({
+        taskId,
+        isDone,
+        taskTitle,
+        taskContent,
+        userId
+    });
+    try {
+        await newTask.save();
+        res.status(201).json(newTask);
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({error: "Duplicate taskId error. This taskId already exists for this user."});
+        } else {
+            console.error('Failed to save the task:', error);
+            res.status(500).json({error: 'Internal server error'});
+        }
+    }
+});
+
+
+router.get('/tasks/user/:userId', async (req, res) => {
+    const userId = req.params.userId.trim();
+    console.log("Fetching tasks for userId:", userId);
+    try {
+        const tasks = await Task.find({userId});
+        if (tasks.length === 0) {
+            console.warn("No tasks found for userId:", userId);
+        } else {
+            console.log("Tasks retrieved:", tasks);
+        }
+        res.status(200).json(tasks);
+    } catch (err) {
+        console.error("Error fetching tasks for userId:", userId, err.message);
+        res.status(500).json({error: err.message});
+    }
+});
 
 module.exports = router;
