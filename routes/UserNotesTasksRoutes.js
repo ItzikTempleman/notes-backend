@@ -373,4 +373,43 @@ router.put('/tasks/:taskId', async (req, res) => {
     }
 });
 
+
+router.delete('/tasks/:noteId', async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const deletedTask = await Task.findOneAndDelete({taskId});
+        if (isNaN(taskId)) {
+            return res.status(400).json({error: `taskId: '${taskId}' is not valid`})
+        }
+        if (!deletedTask) {
+            return res.status(404).json({error: `Task ${taskId} not found`});
+        }
+        return res.status(200).json({
+            message: 'Task deleted successfully',
+            note: deletedTask,
+        });
+    } catch (err) {
+        console.error('Error deleting task:', err);
+        return res.status(500).json({error: 'Internal server error'});
+    }
+});
+
+router.delete('/delete-all-tasks', async (req, res) => {
+    try {
+        const result = await Task.deleteMany({});
+        res.status(200).json({
+            message: "All tasks have been deleted successfully",
+            deletedCount: result.deletedCount,
+
+        });
+    } catch (error) {
+        console.error('Detailed Error: ', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            details: error.message,
+            stack: error.stack
+        });
+    }
+});
+
 module.exports = router;
