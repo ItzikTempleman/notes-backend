@@ -374,7 +374,7 @@ router.put('/tasks/:taskId', async (req, res) => {
 });
 
 
-router.delete('/tasks/:noteId', async (req, res) => {
+router.delete('/tasks/:taskId', async (req, res) => {
     try {
         const taskId = req.params.taskId;
         const deletedTask = await Task.findOneAndDelete({taskId});
